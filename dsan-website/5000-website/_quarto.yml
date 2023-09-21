@@ -7,10 +7,30 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: aboutme/aboutme.qmd
+        text: About Me
+      - href: https://github.com/anly501/dsan-5000-project-corwindark
+        text: Code
+      - href: Introduction/introduction.qmd
+        text: Introduction
+      - href: datagathering/datagathering.ipynb
+        text: Data Gathering
+      - href: datacleaning/datacleaning.ipynb
+        text: Data Cleaning
+      - href: dataexploration/dataexploration.ipynb
+        text: Data Exploration
       - href: clustering/clustering.qmd
         text: Clustering
+      - href: dimreduction/dimreduction.ipynb
+        text: Dimensionality Reduction
+      - href: dectrees/dectrees.ipynb
+        text: Decision Trees
+      - href: arm/arm.ipynb
+        text: ARM
+      - href: conclusions/conclusions.ipynb
+        text: Conclusions
       - href: eda/eda.ipynb
-        text: Data Exploration
+        text: Old Doc
 format:
   html:
     theme: cosmo

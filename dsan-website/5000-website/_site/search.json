@@ -7,6 +7,13 @@
     "text": "See the following link for more information about the author: about me\nThis is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\nHIGHLY RECOMMENDED\n\nIt is highly recommended that you build your website using .ipynb files and NOT .qmdfiles\nFunctionally the two formats are basically identical, i.e. they are just Markdown + Code\nHowever there is ONE MAJOR DIFFERENCE, i.e. .ipynb stores the code outputs in the meta-data of the file\n\nThis means you ONLY HAVE TO RUN THE CODE ONCE with .ipynb\n.qmd will run the code every time you build the website, which can be very slow\n\nThere are caching options for .qmd, however, they are “messier” that just using .ipynb\n\nNote: .qmd is fine if there is no code, in which case it is basically just a Markdown file\n\nConverting between the two\n\nYou can switch between the two formats using\nquarto convert clustering.qmd this will output a .ipynb version called clustering.ipynb\nquarto convert eda.ipynb this will output a .qmd version called eda.qmd\n\nYOU CAN RUN R CODE IN VSC WITH .ipynb, see the following link\n\nhttps://saturncloud.io/blog/how-to-use-jupyter-r-kernel-with-visual-studio-code/\n\nIt is possible, but NOT RECOMMENDED, to mix Python and R code in the same file\n\nIMPORTANT ASIDE\n\nA .ipynb file is simply a JSON file with a specialized structural format\nYou can see this by running more eda/eda.ipynb from the command line\nWhich will output the following;\n\n\nTIP FOR MAC USERS\n\ncommand+control+shift+4 is very useful on a mac.\n\nIt takes a screenshot and saves it to the clip-board\n\nThe following VSC extension allows you to paste images from the clip-board with alt+command+v.\n\ntab is your best friend when using the command line, since it does auto-completion\nopen ./path_to_file will open any file or directory from the command line"
   },
   {
+    "objectID": "clustering/clustering.html",
+    "href": "clustering/clustering.html",
+    "title": "Clustering",
+    "section": "",
+    "text": "Build out your website tab for “clustering”"
+  },
+  {
     "objectID": "eda/eda.html",
     "href": "eda/eda.html",
     "title": "Data Exploration",
@@ -28,10 +35,73 @@
     "text": "Basic visualization\n\n\n# Create a visualization\nsns.relplot(\n    data=tips,\n    x=\"total_bill\", y=\"tip\", col=\"time\",\n    hue=\"smoker\", style=\"smoker\", size=\"size\",\n)\n\nplt.show()"
   },
   {
-    "objectID": "clustering/clustering.html",
-    "href": "clustering/clustering.html",
-    "title": "Clustering",
+    "objectID": "dectrees/dectrees.html",
+    "href": "dectrees/dectrees.html",
+    "title": "DSAN-5000: Project",
     "section": "",
-    "text": "Build out your website tab for “clustering”"
+    "text": "print(\"a\")"
+  },
+  {
+    "objectID": "dataexploration/dataexploration.html",
+    "href": "dataexploration/dataexploration.html",
+    "title": "DSAN-5000: Project",
+    "section": "",
+    "text": "print(\"a\")"
+  },
+  {
+    "objectID": "data/data.html",
+    "href": "data/data.html",
+    "title": "DSAN-5000: Project",
+    "section": "",
+    "text": "print(\"a\")"
+  },
+  {
+    "objectID": "arm/arm.html",
+    "href": "arm/arm.html",
+    "title": "DSAN-5000: Project",
+    "section": "",
+    "text": "print(\"a\")"
+  },
+  {
+    "objectID": "aboutme/aboutme.html",
+    "href": "aboutme/aboutme.html",
+    "title": "About Me",
+    "section": "",
+    "text": "Coming from an undergraduate background in social science, I am interested in data science because it is useful for such a wide array of problems, and I feel working in data science let’s you focus on interesting subjects throughout your career. I am a Seattle native but came to DC to attend American University undergrad, where I majored in International Studies with a minor in Data Science. During undergrad, I focused on international relations research, but through a quantitative lens, writing papers on political bargaining in Somalia and modeling protest violence in the United States. After graduating during COVID, I worked for a small international development consulting firm, providing data science adjacent skills on a myriad of different development projects for USAID, Australia’s DFAT, the World Bank, and others. I really enjoyed my time working in that field, but I wanted to learn more advanced ML methods, and so I am excited to be at Georgetown with the opportunity to dig into the concepts that interest me! After working on blended finance programs for several years\nResearch interests: - Metalearning and ensembling for time series prediction - Bet sizing and portfolio management - Tying diverse datasets together\nOutside school, I live in Arlington. Having lived around the DMV for the past 5 years off and on, I have found there are many exciting activities in the area. In particular, I enjoy getting outdoors however I can, such as hiking or just walking around different neighborhoods. I also love to cook, travel to other countries or just new US cities, develop video games, and try out as many coffee shops as possible! (Although the East Coast really hasn’t approached Seattle’s standards yet in my, totally biased, opinion.)"
+  },
+  {
+    "objectID": "conclusions/conclusions.html",
+    "href": "conclusions/conclusions.html",
+    "title": "DSAN-5000: Project",
+    "section": "",
+    "text": "print(\"a\")"
+  },
+  {
+    "objectID": "datacleaning/datacleaning.html",
+    "href": "datacleaning/datacleaning.html",
+    "title": "DSAN-5000: Project",
+    "section": "",
+    "text": "print(\"a\")"
+  },
+  {
+    "objectID": "datagathering/datagathering.html",
+    "href": "datagathering/datagathering.html",
+    "title": "DSAN-5000: Project",
+    "section": "",
+    "text": "print(\"a\")"
+  },
+  {
+    "objectID": "dimreduction/dimreduction.html",
+    "href": "dimreduction/dimreduction.html",
+    "title": "DSAN-5000: Project",
+    "section": "",
+    "text": "print(\"a\")"
+  },
+  {
+    "objectID": "Introduction/introduction.html",
+    "href": "Introduction/introduction.html",
+    "title": "Introduction - Retail Investor Sentiment and Market Outcomes",
+    "section": "",
+    "text": "This section should include paragraphs that summarize the topic,\nFinancial markets have become substantially more available to a wider class of investors in recent years. Brokers have developed mobile apps that can run on anyone’s personal device, trading fees have been reduced to zero in many cases, and new fintech companies have emerged that seek to make investing more available to everyday people, such as Robinhood, Acorns, Wealthfront and others. These developments came to a head in 2020, when so-called retail investing (investing by individuals who buy stocks directly and have smaller balances) exploded during the pandemic. (“New Research: Global Pandemic Brings Surge of New and Experienced Retail Investors Into the Stock Market  FINRA.org” n.d.)\nWhile broader access to financial markets could distribute the gains from investing more fairly, it also increases the risk that everyday investors will lose money through bad investments. Without the backing of institutions that is often found in retirement accounts, nothing protects indvididual investors from taking on extreme risk or buying into companies without sufficient information. Further, retail investors have a spillover effect on markets as a whole, because the sums of money involved can affect companies’ valuations and financial conditions overall. As such, understanding retail investors’ impact has become crucial to staying informed on the forces guiding market dynamics in today’s world.\nUnsurprisingly, researchers have begun to study this phenomena from several angles. Academics have found that including sentiment from retail investor forums helps their models predict prices more accurately (Jing, Wu, and Wang 2021), relying on social media data sources that have become increasingly important in financial analysis (Khan et al. 2022). Khan et. al also found that the impact of social media hype and retail investors varied in importance based on the particular stock market exchange or security being studied. Dividing up the market into smaller segments is certainly a promising area of analysis, based on this work. Overall, data science methods are well suited to address this question, and some areas such as deep learning have become embedded across topics in finance and banking (Huang, Chai, and Cho 2020).\nIn this project, I am seeking to investigate the following research questions:\n\nTo what extent do common measures of retail investor interest correspond to movement in stock prices?\nIs retail investor interest positively or negatively correlated with short and long term outcomes?\nWhich social media sites show promise for measuring retail investor interest?\nDoes the impact of retail investor interest vary based on the financial exchange in question?\nDoes the impact of retail investor interest vary based on the particular security in question?\nHas the importance of retail investor interest diminished since 2020?\nTo what extent is it possible to predict how long retail investor interest will last in a particular stock?\nWhich types of stocks are most likely to attract retail investor interest?\nDo media datasets include signs that news coverage spawns retail investor interest?\nDo media datasets include signs that retail investor interest spawns news coverage?\n\nTo address these questions, I will look at common measures of retail investor interest, including forum posts, social media messages and sentiment, and trading patterns for particular financial instruments.\n\n\n\n\nReferences\n\nHuang, Jian, Junyi Chai, and Stella Cho. 2020. “Deep Learning in Finance and Banking: A Literature Review and Classification.” Frontiers of Business Research in China 14 (1): 13. https://doi.org/10.1186/s11782-020-00082-6.\n\n\nJing, Nan, Zhao Wu, and Hefei Wang. 2021. “A Hybrid Model Integrating Deep Learning with Investor Sentiment Analysis for Stock Price Prediction.” Expert Systems with Applications 178 (September): 115019. https://doi.org/10.1016/j.eswa.2021.115019.\n\n\nKhan, Wasiat, Mustansar Ali Ghazanfar, Muhammad Awais Azam, Amin Karami, Khaled H. Alyoubi, and Ahmed S. Alfakeeh. 2022. “Stock Market Prediction Using Machine Learning Classifiers and Social Media, News.” Journal of Ambient Intelligence and Humanized Computing 13 (7): 3433–56. https://doi.org/10.1007/s12652-020-01839-w.\n\n\n“New Research: Global Pandemic Brings Surge of New and Experienced Retail Investors Into the Stock Market  FINRA.org.” n.d. FINRA. Accessed September 21, 2023. https://www.finra.org/media-center/newsreleases/2021/new-research-global-pandemic-brings-surge-new-and-experienced-retail."
   }
 ]
