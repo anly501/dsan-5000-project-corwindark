@@ -5,8 +5,6 @@ bibliography: ../references.bib
 ---
 
 
-This section should include paragraphs that summarize the topic, 
-
 Financial markets have become substantially more available to a wider class of investors in recent years. Brokers have developed mobile apps that can run on anyone's personal device, trading fees have been reduced to zero in many cases, and new fintech companies have emerged that seek to make investing more available to everyday people, such as Robinhood, Acorns, Wealthfront and others. These developments came to a head in 2020, when so-called retail investing (investing by individuals who buy stocks directly and have smaller balances) exploded during the pandemic. [@lush_2021] 
 
 While broader access to financial markets could distribute the gains from investing more fairly, it also increases the risk that everyday investors will lose money through bad investments. Without the backing of institutions that is often found in retirement accounts, nothing protects indvididual investors from taking on extreme risk or buying into companies without sufficient information. Further, retail investors have a spillover effect on markets as a whole, because the sums of money involved can affect companies' valuations and financial conditions overall. As such, understanding retail investors' impact has become crucial to staying informed on the forces guiding market dynamics in today's world. 

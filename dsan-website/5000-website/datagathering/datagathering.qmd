@@ -1,0 +1,20 @@
+
+
+
+```{r}
+library(tidyverse)
+install.packages("RedditExtractoR")
+library(RedditExtractoR)
+
+
+links <- find_thread_urls()
+
+
+#  search_terms   = "AAPL",
+##  subreddit = "wallstreetbets",
+#  page_threshold = 2)
+
+RedditExtractoR::find_thread_urls()
+
+
+```

@@ -13,7 +13,7 @@ website:
         text: Code
       - href: Introduction/introduction.qmd
         text: Introduction
-      - href: datagathering/datagathering.ipynb
+      - href: datagathering/datagathering.qmd
         text: Data Gathering
       - href: datacleaning/datacleaning.ipynb
         text: Data Cleaning
