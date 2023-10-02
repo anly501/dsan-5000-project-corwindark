@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Corwin Dark">
 
-<title>DSAN-5000: Project - Clustering</title>
+<title>DSAN-5000: Project - Introduction - Retail Investor Sentiment and Market Outcomes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,7 +21,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -85,12 +105,52 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../clustering/clustering.html" rel="" target="" aria-current="page">
+    <a class="nav-link" href="../aboutme/aboutme.html" rel="" target="">
+ <span class="menu-text">About Me</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/anly501/dsan-5000-project-corwindark" rel="" target="">
+ <span class="menu-text">Code</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../Introduction/introduction.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Introduction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../datagathering/datagathering.html" rel="" target="">
+ <span class="menu-text">Data Gathering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../datacleaning/datacleaning.html" rel="" target="">
+ <span class="menu-text">Data Cleaning</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../dataexploration/dataexploration.html" rel="" target="">
+ <span class="menu-text">Data Exploration</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../clustering/clustering.html" rel="" target="">
  <span class="menu-text">Clustering</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../dimreduction/dimreduction.html" rel="" target="">
+ <span class="menu-text">Dimensionality Reduction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../dectrees/dectrees.html" rel="" target="">
+ <span class="menu-text">Decision Trees</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../arm/arm.html" rel="" target="">
+ <span class="menu-text">ARM</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../conclusions/conclusions.html" rel="" target="">
+ <span class="menu-text">Conclusions</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../eda/eda.html" rel="" target="">
- <span class="menu-text">Data Exploration</span></a>
+ <span class="menu-text">Old Doc</span></a>
   </li>  
 </ul>
             <div class="quarto-navbar-tools ms-auto">
@@ -111,13 +171,19 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Clustering</h1>
+<h1 class="title">Introduction - Retail Investor Sentiment and Market Outcomes</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Corwin Dark </p>
+          </div>
+  </div>
     
   
     
@@ -126,11 +192,41 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<p>Build out your website tab for “clustering”</p>
+<p>Financial markets have become substantially more available to a wider class of investors in recent years. Brokers have developed mobile apps that can run on anyone’s personal device, trading fees have been reduced to zero in many cases, and new fintech companies have emerged that seek to make investing more available to everyday people, such as Robinhood, Acorns, Wealthfront and others. These developments came to a head in 2020, when so-called retail investing (investing by individuals who buy stocks directly and have smaller balances) exploded during the pandemic. <span class="citation" data-cites="lush_2021">(<a href="#ref-lush_2021" role="doc-biblioref"><span>“New <span>Research</span>: <span>Global</span> <span>Pandemic</span> <span>Brings</span> <span>Surge</span> of <span>New</span> and <span>Experienced</span> <span>Retail</span> <span>Investors</span> <span>Into</span> the <span>Stock</span> <span>Market</span> <span></span> <span>FINRA</span>.org”</span> n.d.</a>)</span></p>
+<p>While broader access to financial markets could distribute the gains from investing more fairly, it also increases the risk that everyday investors will lose money through bad investments. Without the backing of institutions that is often found in retirement accounts, nothing protects indvididual investors from taking on extreme risk or buying into companies without sufficient information. Further, retail investors have a spillover effect on markets as a whole, because the sums of money involved can affect companies’ valuations and financial conditions overall. As such, understanding retail investors’ impact has become crucial to staying informed on the forces guiding market dynamics in today’s world.</p>
+<p>Unsurprisingly, researchers have begun to study this phenomena from several angles. Academics have found that including sentiment from retail investor forums helps their models predict prices more accurately <span class="citation" data-cites="jing_hybrid_2021">(<a href="#ref-jing_hybrid_2021" role="doc-biblioref">Jing, Wu, and Wang 2021</a>)</span>, relying on social media data sources that have become increasingly important in financial analysis <span class="citation" data-cites="khan_stock_2022">(<a href="#ref-khan_stock_2022" role="doc-biblioref">Khan et al. 2022</a>)</span>. Khan et. al also found that the impact of social media hype and retail investors varied in importance based on the particular stock market exchange or security being studied. Dividing up the market into smaller segments is certainly a promising area of analysis, based on this work. Overall, data science methods are well suited to address this question, and some areas such as deep learning have become embedded across topics in finance and banking <span class="citation" data-cites="huang_deep_2020">(<a href="#ref-huang_deep_2020" role="doc-biblioref">Huang, Chai, and Cho 2020</a>)</span>.</p>
+<p>In this project, I am seeking to investigate the following research questions:</p>
+<ol type="1">
+<li>To what extent do common measures of retail investor interest correspond to movement in stock prices?</li>
+<li>Is retail investor interest positively or negatively correlated with short and long term outcomes?</li>
+<li>Which social media sites show promise for measuring retail investor interest?</li>
+<li>Does the impact of retail investor interest vary based on the financial exchange in question?</li>
+<li>Does the impact of retail investor interest vary based on the particular security in question?</li>
+<li>Has the importance of retail investor interest diminished since 2020?</li>
+<li>To what extent is it possible to predict how long retail investor interest will last in a particular stock?</li>
+<li>Which types of stocks are most likely to attract retail investor interest?</li>
+<li>Do media datasets include signs that news coverage spawns retail investor interest?</li>
+<li>Do media datasets include signs that retail investor interest spawns news coverage?</li>
+</ol>
+<p>To address these questions, I will look at common measures of retail investor interest, including forum posts, social media messages and sentiment, and trading patterns for particular financial instruments.</p>
 
 
 
-</main> <!-- /main -->
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-huang_deep_2020" class="csl-entry" role="listitem">
+Huang, Jian, Junyi Chai, and Stella Cho. 2020. <span>“Deep Learning in Finance and Banking: <span>A</span> Literature Review and Classification.”</span> <em>Frontiers of Business Research in China</em> 14 (1): 13. <a href="https://doi.org/10.1186/s11782-020-00082-6">https://doi.org/10.1186/s11782-020-00082-6</a>.
+</div>
+<div id="ref-jing_hybrid_2021" class="csl-entry" role="listitem">
+Jing, Nan, Zhao Wu, and Hefei Wang. 2021. <span>“A Hybrid Model Integrating Deep Learning with Investor Sentiment Analysis for Stock Price Prediction.”</span> <em>Expert Systems with Applications</em> 178 (September): 115019. <a href="https://doi.org/10.1016/j.eswa.2021.115019">https://doi.org/10.1016/j.eswa.2021.115019</a>.
+</div>
+<div id="ref-khan_stock_2022" class="csl-entry" role="listitem">
+Khan, Wasiat, Mustansar Ali Ghazanfar, Muhammad Awais Azam, Amin Karami, Khaled H. Alyoubi, and Ahmed S. Alfakeeh. 2022. <span>“Stock Market Prediction Using Machine Learning Classifiers and Social Media, News.”</span> <em>Journal of Ambient Intelligence and Humanized Computing</em> 13 (7): 3433–56. <a href="https://doi.org/10.1007/s12652-020-01839-w">https://doi.org/10.1007/s12652-020-01839-w</a>.
+</div>
+<div id="ref-lush_2021" class="csl-entry" role="listitem">
+<span>“New <span>Research</span>: <span>Global</span> <span>Pandemic</span> <span>Brings</span> <span>Surge</span> of <span>New</span> and <span>Experienced</span> <span>Retail</span> <span>Investors</span> <span>Into</span> the <span>Stock</span> <span>Market</span> <span></span> <span>FINRA</span>.org.”</span> n.d. <em>FINRA</em>. Accessed September 21, 2023. <a href="https://www.finra.org/media-center/newsreleases/2021/new-research-global-pandemic-brings-surge-new-and-experienced-retail">https://www.finra.org/media-center/newsreleases/2021/new-research-global-pandemic-brings-surge-new-and-experienced-retail</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
