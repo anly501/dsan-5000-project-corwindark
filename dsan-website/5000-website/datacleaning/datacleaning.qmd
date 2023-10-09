@@ -1,0 +1,32 @@
+---
+title: "Data Gathering"
+engine: knitr
+---
+
+
+
+
+<h2> Clean Record Data in R </h2>
+
+``` {r}
+
+
+
+
+```
+
+
+
+<h2> Cleaning Reddit Text Corpus in Python </h2>
+
+``` {python}
+positiveLingo <- c("call", "calls", "long", "hold", "buy", "bull", "bullish", "bulls", "support", "strong")
+negativeLingo <- c("put", "puts", "short", "shorters", "short-sellers", "sell", "sellers", "bear", "bears", "bearish", "weakness", "weak")
+
+
+```
+
+
+<h2> 
+
+

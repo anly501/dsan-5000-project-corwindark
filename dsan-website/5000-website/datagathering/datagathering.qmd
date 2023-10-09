@@ -1,20 +1,102 @@
+---
+title: "Data Gathering"
+engine: knitr
+---
 
 
+For this project, I need to gather a range of data on retail investor sentiment. Reviewing the literature, it does not appear that a consesus has been reached on which mediums are most useful for measuring retail investor trades, let alone their sentiment. After an extensive review, I decided to try and construct a set of trading signals from the following:
+1. Daily NASDAQ data on the top-10 retail investor held companies (API through R Quandl Package)
+2. Text data from popular stock-trading subreddits (Reddit API through R)
+3. Stocktwits mentions of popular companies through (Stocksera API in Python)
+4. Weekly polls of investor sentiment from the American Association of Individual Investors (downloaded as CSV)
+5. Text data from major financial new companies
 
+Starting with dataset 1: Nasdaq retail investor holdings
 ```{r}
 library(tidyverse)
-install.packages("RedditExtractoR")
+library(Quandl)
+
+Quandl.api_key("psq4nx69HDimf2kQcxZJ")
+data <- Quandl.datatable("NDAQ/RTAT10", paginate = TRUE)
+head(data)
+```
+
+Here I put my api key into the quandl function and I am able to get data going back to 2016 with no issue.
+
+Dataset 2: Text data from reddit
+
+```{r}
+
+# get a particular stock's mentions in titles in each of the 7 subreddits
+# found subreddits by measuring overlap from https://subredditstats.com/subreddit-user-overlaps/superstonk
+# which is calculated based on how likely users are to post on one or the other subs
+# targeting investment related subs with >400k users
+# loop through subreddits and get titles from past month
+
+
+#install.packages("RedditExtractoR", repos='https://cloud.r-project.org/')
 library(RedditExtractoR)
+#install.packages("reticulate")
+library(reticulate)
+
+stockSubreddits <- c(
+    "wallstreetbets",
+    "stocks",
+    "options",
+    "investing",
+    "stockamrket",
+    "superstonk",
+    "wallstreetbetsnew"
+)
 
 
-links <- find_thread_urls()
+
+links <- find_thread_urls(keywords = "SPY", subreddit = "stocks", sort_by = "hot", period = "day")
+
+head(links)
 
 
-#  search_terms   = "AAPL",
-##  subreddit = "wallstreetbets",
-#  page_threshold = 2)
+#threadContent <- get_thread_content(links)
+#threadContent[1]
+```
 
-RedditExtractoR::find_thread_urls()
+Here I have gathered a list of 7 stock trading subreddits, which I created by searching for subreddits which mentioned individual stocks and investing, which also had more than ~400k subscribers. Then, I can use the find_thread_urls command to get a list of threads which mention particular keywords. For this initial gathering step, I simply gather posts with they keyword "SPY," a ticker for the S&P 500, from r/stocks, a major investing subreddit.
+
+3. Stocktwits rankings
+```{python}
+# stocksera
+# https://pypi.org/project/stocksera/
+# use this for news ratings, stocktwits website mentions and ranking
+# api key: 2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1
+
+import subprocess
+import sys
+
+def install(name):
+    subprocess.call([sys.executable, '-m', 'pip', 'install', name])
+
+#install("stocksera")
+
+import stocksera
+
+client = stocksera.Client(api_key="2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1")
+data = client.stocktwits(ticker="AAPL")
+print(data[0])
 
 
 ```
+
+Dataset 4: (In Progress) Weekly Investor Sentiment from AAII
+``` {r}
+# AAII weekly survey data https://www.aaii.com/sentimentsurvey/sent_results
+# read in as csv 
+
+#getwd()
+#aaWeekly <- read.csv("./data/00-raw-data/sentiment_aaii.csv")
+#head(aaWeekly)
+
+
+```
+
+
+Robintrack, robinhood
