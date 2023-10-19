@@ -83,8 +83,11 @@ client = stocksera.Client(api_key="2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1")
 data = client.stocktwits(ticker="AAPL")
 print(data[0])
 
-
 ```
+
+
+
+
 
 Dataset 4: (In Progress) Weekly Investor Sentiment from AAII
 ``` {r}
@@ -99,4 +102,3 @@ Dataset 4: (In Progress) Weekly Investor Sentiment from AAII
 ```
 
 
-Robintrack, robinhood
