@@ -16,6 +16,9 @@ Starting with dataset 1: Nasdaq retail investor holdings
 library(tidyverse)
 library(Quandl)
 library(lubridate)
+library(RedditExtractoR)
+library(reticulate)
+library(xlsx)
 
 Quandl.api_key("psq4nx69HDimf2kQcxZJ")
 #data <- Quandl.datatable("NDAQ/RTAT10", paginate = TRUE)
@@ -70,9 +73,7 @@ Dataset 2: Text data from reddit
 
 
 #install.packages("RedditExtractoR", repos='https://cloud.r-project.org/')
-library(RedditExtractoR)
-#install.packages("reticulate")
-library(reticulate)
+
 
 stockSubreddits <- c(
     "wallstreetbets",
@@ -87,27 +88,39 @@ stockSubreddits <- c(
 
 
 links <- find_thread_urls(keywords = "QQQ", subreddit = "stocks", sort_by = "top", period = "all")
+
+links <- tibble(links)
+
 links$ticker = "QQQ"
 
 # get all unique stocks in the dataset of top retail-traded securities
 tempClean <- read.csv('./data/01-modified-data/cleanRTAT.csv')
-uqTickers <- unique(tempClean$ticker)
-uqTickers <- uqTickers[1:10]
+
+
+topStocks <- sort(table(tempClean$ticker), decreasing = TRUE)[1:100]
+
+uqTickers <- rownames(topStocks)
 
 print(uqTickers)
+
 for(i in 1:length(uqTickers)) {
     print(i / nrow(uqTickers))
     
     templinks <- find_thread_urls(keywords = uqTickers[i], subreddit = "stocks", sort_by = "top", period = "all")
     templinks$ticker <- uqTickers[i]
-    rbind(links, templinks)
+    links <- rbind(links, templinks)
 }
 
-dim(links)
-links[236,]
+
+
+write.xlsx(links,"./data/01-modified-data/sampleRedditText.xlsx")
+
 ```
 
 Here I have gathered a list of 7 stock trading subreddits, which I created by searching for subreddits which mentioned individual stocks and investing, which also had more than ~400k subscribers. Then, I can use the find_thread_urls command to get a list of threads which mention particular keywords. For this initial gathering step, I simply gather posts with they keyword "SPY," a ticker for the S&P 500, from r/stocks, a major investing subreddit.
+
+Updated Method: using r/stocks only, get posts for the 100 most common tickers in the most-held datatable.
+
 
 3. Stocktwits rankings
 ```{python}
