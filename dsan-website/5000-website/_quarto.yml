@@ -17,7 +17,7 @@ website:
         text: Data Gathering
       - href: datacleaning/datacleaning.qmd
         text: Data Cleaning
-      - href: dataexploration/dataexploration.ipynb
+      - href: dataexploration/dataexploration.qmd
         text: Data Exploration
       - href: clustering/clustering.qmd
         text: Clustering
