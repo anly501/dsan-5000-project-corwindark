@@ -15,10 +15,45 @@ Starting with dataset 1: Nasdaq retail investor holdings
 ```{r}
 library(tidyverse)
 library(Quandl)
+library(lubridate)
 
 Quandl.api_key("psq4nx69HDimf2kQcxZJ")
-data <- Quandl.datatable("NDAQ/RTAT10", paginate = TRUE)
-head(data)
+#data <- Quandl.datatable("NDAQ/RTAT10", paginate = TRUE)
+
+cleanData <- data %>% 
+    mutate(date = ymd(date)) %>%
+    filter(year(date) > 2019)
+
+cleanData <- cleanData[order(cleanData$date),]
+cleanData$deltaActivity <- vector(mode = "numeric", length = nrow(cleanData))
+cleanData$deltaSentiment <- vector(mode = "numeric", length = nrow(cleanData))
+cleanData$newEntry <- vector(mode = 'logical', length = nrow(cleanData))
+
+for(i in 1:nrow(cleanData)) {
+    if(i %% 1000 == 0) {
+        print(i)
+    }
+    prevDay <- cleanData %>%
+        filter(day(date) == day(cleanData$date[i]) - 1) %>%
+        filter(ticker == cleanData$ticker[i])
+
+    if(nrow(prevDay) > 0) {
+
+        cleanData$deltaActivity[i] = cleanData$activity[i] - prevDay$activity[1]
+        cleanData$deltaSentiment[i] = cleanData$sentiment[i] - prevDay$sentiment[1]
+        cleanData$newEntry[i] = FALSE
+    
+    }else {
+        cleanData$newEntry[i] = TRUE
+    }
+}
+
+colnames(cleanData)
+hist(cleanData$deltaActivity)
+
+head(cleanData, 100)
+getwd()
+#write.csv(cleanData, "./data/01-modified-data/cleanRTAT.csv")
 ```
 
 Here I put my api key into the quandl function and I am able to get data going back to 2016 with no issue.
@@ -51,13 +86,25 @@ stockSubreddits <- c(
 
 
 
-links <- find_thread_urls(keywords = "SPY", subreddit = "stocks", sort_by = "hot", period = "day")
+links <- find_thread_urls(keywords = "QQQ", subreddit = "stocks", sort_by = "top", period = "all")
+links$ticker = "QQQ"
 
-head(links)
+# get all unique stocks in the dataset of top retail-traded securities
+tempClean <- read.csv('./data/01-modified-data/cleanRTAT.csv')
+uqTickers <- unique(tempClean$ticker)
+uqTickers <- uqTickers[1:10]
 
+print(uqTickers)
+for(i in 1:length(uqTickers)) {
+    print(i / nrow(uqTickers))
+    
+    templinks <- find_thread_urls(keywords = uqTickers[i], subreddit = "stocks", sort_by = "top", period = "all")
+    templinks$ticker <- uqTickers[i]
+    rbind(links, templinks)
+}
 
-#threadContent <- get_thread_content(links)
-#threadContent[1]
+dim(links)
+links[236,]
 ```
 
 Here I have gathered a list of 7 stock trading subreddits, which I created by searching for subreddits which mentioned individual stocks and investing, which also had more than ~400k subscribers. Then, I can use the find_thread_urls command to get a list of threads which mention particular keywords. For this initial gathering step, I simply gather posts with they keyword "SPY," a ticker for the S&P 500, from r/stocks, a major investing subreddit.
@@ -80,9 +127,16 @@ def install(name):
 import stocksera
 
 client = stocksera.Client(api_key="2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1")
-data = client.stocktwits(ticker="AAPL")
-print(data[0])
 
+
+stw = client.stocktwits(ticker = "QQQ")
+print(stw)
+
+
+
+
+sbrs = client.wsb_mentions(days=500, ticker="QQQ")
+print(sbrs)
 ```
 
 
