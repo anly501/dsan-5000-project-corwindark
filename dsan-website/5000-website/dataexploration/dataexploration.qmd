@@ -1,0 +1,183 @@
+---
+title: "Exploratory Data Analysis"
+author: "Corwin Dark"
+engine: knitr
+---
+
+
+<h2> EDA Overview <h2>
+
+At the broadest level, there is a temporal component to the research question that will shape how we conduct the analysis. Namely, the outcome variable is retail trading activity in stocks, as measured by daily holding data on the top 10 stocks sourced from NASDAQ's API. As such, we are interested in data from the other datasets (reddit text information, investor sentiment survey, stocktwits ranking) as of one day before. I will merge the datasets in R, and then use R (ggplot) to create visuals and carry out EDA.
+
+<h2> Joining the Data </h2>
+(Will be moved to data cleaning eventually)
+
+
+```{r}
+library(tidyverse)
+library(Quandl)
+library(lubridate)
+library(RedditExtractoR)
+library(reticulate)
+library(xlsx)
+```
+
+Let's join the data together into one dataset, with properly lagged predictor variables.
+```{r}
+redditIn <- read.xlsx("./data/01-modified-data/sampleRedditText.xlsx", sheetName = "Sheet1")
+sentimentIn <- read.csv("./data/00-raw-data/sentiment_aaii.csv")
+rtatIn <- read.csv("./data/01-modified-data/cleanRTAT.csv")
+
+
+# Ensure dates can be joined
+colnames(sentimentIn)[1] <- "date"
+
+sentimentIn <- sentimentIn |>
+    mutate(date = mdy(date)) |>
+    mutate(week = week(date)) |>
+    mutate(lagweek = week + 1) |>
+    mutate(weekyear = paste(year(date), lagweek )) |>
+    mutate(Bullish = as.numeric(str_replace(Bullish, "%", ""))/100 ) |>
+    mutate(Neutral = as.numeric(str_replace(Neutral, "%", ""))/100 ) |>
+    mutate(Spread = as.numeric(str_replace(Spread, "%", ""))/100 ) |>
+    mutate(Bearish = as.numeric(str_replace(Bearish, "%", ""))/100 ) 
+
+
+rtatIn <- rtatIn %>%
+    mutate(date = ymd(date)) %>%
+    mutate(week = week(date)) %>%
+    mutate(weekyear = paste(year(date), week))
+
+head(rtatIn)
+
+
+joinedSentiment <- left_join(rtatIn, sentimentIn, by = "weekyear")
+
+head(joinedSentiment)
+
+``` 
+
+
+<h2> Numeric Summaries </h2>
+
+``` {r}
+summary(joinedSentiment$activity)
+summary(joinedSentiment$sentiment)
+summary(joinedSentiment$deltaActivity)
+summary(joinedSentiment$deltaSentiment)
+summary(joinedSentiment$Bullish)
+summary(joinedSentiment$Bearish)
+summary(joinedSentiment$Neutral)
+summary(joinedSentiment$Spread)
+
+```
+
+
+
+Barplots for discrete variables:
+```{r}
+
+ggplot(joinedSentiment, aes(x = newEntry)) + geom_bar() + labs(x= "Current Stock is in Top 10", y = "Count", title = "Distribution of New Stocks Amongst Top-10 Stocks by Retail Activity") + theme_grey(base_size = 20)
+
+sort(table(joinedSentiment$ticker), decreasing = TRUE)[1:10]
+```
+
+In addition to the porportion of new stocks in the top 10, the table shows up the top 10 stocks by number of days spent in the top-10 ranking of retail investor actvity. We can see that the distribution has a heavy right tail, as even amongst the top 10 stocks there is a large divergence, with the top stock (AAPL) having more than two times as many days in the top 10 as the 10th place stock (MSFT).
+
+
+<h2> Outcome Variable Exploration </h2>
+
+First, lets explore the outcome variable table, of the top 10 retail-investor held stocks each day. Each stock has an 'activity' number which measures the percent of traded shares held by retail investors. Let's see how those scores are distributed:
+
+```{r}
+#| echo = false
+
+ggplot(joinedSentiment, aes(x = activity)) + geom_bar(stat = 'bin', binwidth = 0.01) + labs(x= "Daily Retail Activity Score", y = "Count", title = "Distribution of Daily Retail Activity Scores Amongst Top-10 Stocks") + theme_grey(base_size = 20)
+
+```
+
+Activity scores seem to be skewed to the right, with a thin tail. I wonder which stocks compose the highest activity values. Let's look at which of these scores were from stocks that had just appeared in the top 10 that day:
+
+```{r}
+
+ggplot(joinedSentiment, aes(x = activity, fill = newEntry)) + geom_bar(stat = 'bin', binwidth = 0.01) + labs(x= "Daily Retail Activity Score", y = "Count", title = "Distribution of Daily Retail Activity Scores Amongst Top-10 Stocks", fill = "New to Top 10") + theme_grey(base_size = 20)
+
+
+```
+
+From this chart, we can see that most of the high-activity scores are from stocks which previously entered the top 10. This makes sense, as we would expects stock to increase in activity over multiple days, before reaching the top of the list. Similar to songs on top music charts.
+
+My next question is how the outcome variable has changed over time. Let's look at attention scores over time:
+
+```{r}
+
+joinedSentimentAvgs <- joinedSentiment %>%
+    group_by(date.x) %>%
+    summarize(dailyactivitytotal = sum(activity), dailyactivityavg = mean(activity),
+    dailynewtickers = sum(as.numeric(newEntry))) 
+
+ggplot(joinedSentimentAvgs, aes(x = date.x, y = dailyactivitytotal)) + geom_line() + labs(x= "Date", y = "Total Retail Investor Activity", title = "Total of Daily Retail Activity Scores Amongst Top-10 Stocks", fill = "New to Top 10") + theme_grey(base_size = 20)
+
+```
+
+This chart is interesting because it shows that our outcome variable has a clear upward trend over time. Retail investors appear to be a greater proportion of the total activity in the stock market today than they were in 2020.
+
+One last visual I wanted to create to evaluate the outcome variables was the number of new top-10 stocks that entered the list each week
+
+
+```{r}
+library(ggbeeswarm)
+
+ggplot(joinedSentimentAvgs, aes(x = as.character(year(date.x)), y = dailynewtickers)) + geom_boxplot() + labs(x= "Year", y = "New Stocks in the Top 10", title = "Number of New Stocks in the Top 10 of Retail Activity by Year", fill = "New to Top 10") + theme_grey(base_size = 20)
+
+```
+
+Here we can see there is not a huge difference in the distributions of new stocks between the years, except for 2021, when there was a lot more days with at least 1 new stock in the top 10. But far and away, at least 50% of days have no new stocks in the top 10 of retail trader activity.
+
+<h2> Bivariate Analysis </h2>
+
+
+Now, lets look at some of the predictor variables in relation to the outcome variables.
+
+``` {r}
+library("corrplot")
+
+noNAsentiment <- na.omit(joinedSentiment[,c(4,5,6,7,12,13,14,17)])
+
+save <- cor(noNAsentiment)
+corrplot(save)
+
+save 
+
+```
+
+The correlations between weekly investor sentiment polling and investor activity in the following week are displayed in the plot. While many crosstabs are highly correlated, these are only because the variables have been calculated together (i.e. the sentiment polling includes % with positive sentiment and % with negative sentiment, which are perfectly correlated since they are two sides of the same measure). The highest correlation value recorded outside these collinear predictors was ~0.115 for the spread in bullish and bearish opinion vs. sentiment towards top10 stocks. 
+
+This correlation makes sense, because both measures are capturing the same underlying phenomena: investor sentiment. If retail investor sentiment is bearish about the market in general, then it would likely also be negative about particular stocks.
+
+
+<h2> Outliers and Segmentation </h2>
+
+
+We already saw in the overtime chart that perhaps 2021 was a different type of year than the other 3, as it had a high percentage of days with new stocks in the top 10.
+
+Lets look at the key outcome variables and see if any values violate Tukey's rule
+``` {r}
+
+boxplot(joinedSentiment$activity)
+
+cutoff <- mean(joinedSentiment$activity) + (1.5 * IQR(joinedSentiment$activity))
+
+abline(h = cutoff, col = "Red")
+
+
+```
+
+With the red line above denoting the 1.5*IQR + mean threshold, we can see that many values lie above this line, but they do not appear to be separated from the main distribution. Rather, it looks like the main distribution has a fat right tail. Perhaps it would be well approximated by a Student's distribution.
+
+
+<h2> Hypothesis Testing </h2>
+
+
+
+

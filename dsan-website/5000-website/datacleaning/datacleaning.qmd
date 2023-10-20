@@ -9,7 +9,7 @@ engine: knitr
 <h2> Clean Record Data in R </h2>
 
 ``` {r}
-
+library(reticulate)
 
 
 
@@ -20,12 +20,75 @@ engine: knitr
 <h2> Cleaning Reddit Text Corpus in Python </h2>
 
 ``` {python}
+from sklearn.feature_extraction.text import CountVectorizer
+import numpy as np
+import pandas as pd
+import os
+import subprocess
+import sys
+from nltk.stem import PorterStemmer
+
+
+subprocess.call([sys.executable, '-m', 'pip', 'install', 'nltk'])
+
+os.getcwd()
+redditTexts = pd.read_excel("./data/01-modified-data/sampleRedditText.xlsx", sheet_name="Sheet1")
+
+redditTexts.head()
 #positiveLingo <- c("call", "calls", "long", "hold", "buy", "bull", "bullish", "bulls", "support", "strong")
 #negativeLingo <- c("put", "puts", "short", "shorters", "short-sellers", "sell", "sellers", "bear", "bears", "bearish", "weakness", "weak")
 
+removeNAtexts = redditTexts.dropna(subset = ['text'])
+
+stemmer = PorterStemmer()
+
+removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: x.split())
+
+df['stemmed'] = df['unstemmed'].apply(lambda x: [stemmer.stem(y) for y in x]) 
+
+removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: [stemmer.stem(y) for y in x]) 
+
+
+removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: ' '.join(x)) 
+
+vectorizer = CountVectorizer()
+Xs  =  vectorizer.fit_transform(removeNAtexts["text"])   
+#print(type(Xs))
+
+
+# VOCABULARY DICTIONARY
+print("vocabulary = ",vectorizer.vocabulary_)   
+
+# STOP WORDS 
+print("stop words =", vectorizer.stop_words)
+
+col_names=vectorizer.get_feature_names_out()
+print("col_names=",col_names)
+
+
+print("COLUMN NAMES=",col_names)
+print("CORPUS WIDE WORD COUNTS:",np.sum(Xs,axis=0))
+print("WORDS PER DOCUMENT:\n",np.sum(Xs,axis=1))
+
+
+smallReddit = removeNAtexts[["date_utc", "title", "ticker", "comments"]]
+
+smallReddit.index
+
+b = pd.DataFrame(Xs.toarray(), columns=col_names, index= smallReddit.index)
+
+redditCV = pd.concat([smallReddit, b], axis=1)
+
+redditCV.head()
+
+
+redditCV.to_csv('./data/01-modified-data/vectorizedReddit.csv', index=False)
+print(df)
 
 ```
 
+~51700 words without stemming
+~49692 words after stemming
 
 <h2> 
 
