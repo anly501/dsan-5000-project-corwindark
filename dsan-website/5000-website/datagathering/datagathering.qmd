@@ -153,9 +153,6 @@ print(sbrs)
 ```
 
 
-
-
-
 Dataset 4: (In Progress) Weekly Investor Sentiment from AAII
 ``` {r}
 # AAII weekly survey data https://www.aaii.com/sentimentsurvey/sent_results
