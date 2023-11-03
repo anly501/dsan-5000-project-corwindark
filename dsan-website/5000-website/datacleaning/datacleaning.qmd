@@ -48,28 +48,13 @@ df['stemmed'] = df['unstemmed'].apply(lambda x: [stemmer.stem(y) for y in x])
 
 removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: [stemmer.stem(y) for y in x]) 
 
-
 removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: ' '.join(x)) 
 
 vectorizer = CountVectorizer()
 Xs  =  vectorizer.fit_transform(removeNAtexts["text"])   
 #print(type(Xs))
 
-
-# VOCABULARY DICTIONARY
-print("vocabulary = ",vectorizer.vocabulary_)   
-
-# STOP WORDS 
-print("stop words =", vectorizer.stop_words)
-
 col_names=vectorizer.get_feature_names_out()
-print("col_names=",col_names)
-
-
-print("COLUMN NAMES=",col_names)
-print("CORPUS WIDE WORD COUNTS:",np.sum(Xs,axis=0))
-print("WORDS PER DOCUMENT:\n",np.sum(Xs,axis=1))
-
 
 smallReddit = removeNAtexts[["date_utc", "title", "ticker", "comments"]]
 
@@ -83,13 +68,28 @@ redditCV.head()
 
 
 redditCV.to_csv('./data/01-modified-data/vectorizedReddit.csv', index=False)
-print(df)
+#print(df)
+
+```
+
+
+```{python}
+
+# VOCABULARY DICTIONARY
+#print("vocabulary = ",vectorizer.vocabulary_)   
+# STOP WORDS 
+#print("stop words =", vectorizer.stop_words)
+print("col_names=",col_names)
+print("CORPUS WIDE WORD COUNTS:",np.sum(Xs,axis=0))
+#print("WORDS PER DOCUMENT:\n",np.sum(Xs,axis=1))
+
+
 
 ```
 
 ~51700 words without stemming
 ~49692 words after stemming
 
-<h2> 
+<h2> Now, let's
 
 
