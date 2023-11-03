@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>DSAN-5000: Project – naivebayes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">DSAN-5000: Project</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../aboutme/aboutme.html" rel="" target="">
+ <span class="menu-text">About Me</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/anly501/dsan-5000-project-corwindark" rel="" target="">
+ <span class="menu-text">Code</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../Introduction/introduction.html" rel="" target="">
+ <span class="menu-text">Introduction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../datagathering/datagathering.html" rel="" target="">
+ <span class="menu-text">Data Gathering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../datacleaning/datacleaning.html" rel="" target="">
+ <span class="menu-text">Data Cleaning</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../dataexploration/dataexploration.html" rel="" target="">
+ <span class="menu-text">Data Exploration</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../naivebayes/naivebayes.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Naive Bayes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../clustering/clustering.html" rel="" target="">
+ <span class="menu-text">Clustering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../dimreduction/dimreduction.html" rel="" target="">
+ <span class="menu-text">Dimensionality Reduction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../dectrees/dectrees.html" rel="" target="">
+ <span class="menu-text">Decision Trees</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../arm/arm.html" rel="" target="">
+ <span class="menu-text">ARM</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../conclusions/conclusions.html" rel="" target="">
+ <span class="menu-text">Conclusions</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../eda/eda.html" rel="" target="">
+ <span class="menu-text">Old Doc</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+
+<h3 class="anchored">
+Introduction to Naive Bayes
+</h3>
+<p>A naive bayes classifier assigns labels to observations using a process based on Bayes’ theorem. The important element of the theorem is updating the probability of an event based on the known prior events. For instance, if all vehicles with 2 wheels are motorcycles, then we can update the probability that an unknown vehicle is a motorcycle given whether we know it has two wheels. In the case of a classification algorithm, the prosterior probabilities in question are the likelihoods that a given observation belongs to each class. Using the known prior events to update the probability of each class, the algorithm would take whichever class label had the highest likelihood and assign that to the data point in question.</p>
+<p>A naive Bayes classifier has several variants based on the types of features being used to predict class labels. - Gaussian: If the predictors are continuous, then we likely will not have exact probabilities for the given input point (as no other point may have the exact same value for all input features). As such, a different approach is required, where it is assumed that the continuous attributes are normally distributed. Then, for a given point that needs to be classified, we can express the probability of it belonging to a certain class as the likelihood that the point came from each class’s distribution. This is relatively easy, as we can simply find the likelihood that the point was generated by each class distribution, and assign the most likely one as the label. - Multinomial: This method is preferred when the predictors are generated by a multinomial distribution, meaning they are discrete, with more than 2 levels. Labels would be assigned to new observations based on the conditional probability of observing the point’s attributes given that it came from each class (which can be calculated again using Baye’s theorem since the attributes are discirete). - Bernoulli Naive Bayes: The Bernoulli method is preferred when the predictors are binary, meaning they are discrete but only have two values they can take. This is calculated similar to the multinomial variant, but is even more straightforwards as there are only two classes.</p>
+<h3 class="anchored">
+Naive Bayes for Retail Investor Activity
+</h3>
+<p>Objective of Naive Bayes for my Project: With my Naive Bayes classifier, I hope to identify stocks in the top 10 by retail investor activity that have increases in retail investor activity on a given day. To do this I will convert a continuous variable (the daily change in retail investor activity) into two classes based on whether a given stock increased or decreased in activity day-over-day.</p>
+<p>To predict this outcome variable for each stock in the top 10, I will use two different sets of predictors in the Naive Bayes classifier. First, I will use my tabular data: - Individual investor sentiment from the proceding week, including the percent of respondents who were bearish, bullish, and neutral on the market. - Tabular data from reddit posts including the number of comments.<br>
+Second, I will use my textual data to predict the same increase/decrease outcome variable: - A corpus of 7.5k reddit posts mentioning top-10 tickers, which contain about 50,000 unique words.</p>
+<h2 class="anchored">
+Prep Data for Naive Bayes
+</h2>
+<p>We are splitting the data into training, validation, and test sets to ensure we optimally fit the model and avoid over or under fitting. In particular, we can use the validation set to tune our model and improve its generalizability, and then use the test set to evaluate the performance of our model. I will do a 70-15-15 split between the train, evaluation, and test data, and this is done simply by randomly splitting the dataset.</p>
+<p>For the text data: I will prepare the corpus in a few steps. 1. I have already used a stemmer to reduce the number of unique words by about 7,000. After this reduction we still have 50,000 words. 2. I will filter out words with &lt;5 total uses in the corpus. 3. Then, I will join my binary outcome variable with the reddit text data according to the date of each post. The outcomes will be lagged by 1 day, as we want to ensure that the reddit mentions preceeded the change in a stock’s trading activity. As an example of how this will work: the outcome variable for a post that mentioned ticker QQQ on 12/1 would be 1 or 0 depending on whether QQQ increased or decreased in activity on 12/2.</p>
+<div class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> csv</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>os.getcwd()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>dataIn <span class="op">=</span> pd.read_csv(<span class="st">'../data/01-modified-data/joinedSentiment.csv'</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dataIn[<span class="st">'deltaActivity'</span>] <span class="op">==</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0       False
+1       False
+2        True
+3       False
+4       False
+        ...  
+9555    False
+9556    False
+9557    False
+9558    False
+9559    False
+Name: deltaActivity, Length: 9560, dtype: bool
+   Unnamed: 0     X      date.x ticker  activity  sentiment  deltaActivity  \
+0           1  9551  2020-01-02   TSLA    0.0226          0        -0.0014   
+1           2  9552  2020-01-02    SPY    0.0147          3        -0.0341   
+2           3  9553  2020-01-02   ROKU    0.0119          0         0.0000   
+3           4  9554  2020-01-02    QQQ    0.0093          6        -0.0111   
+4           5  9555  2020-01-02   MSFT    0.0116          2        -0.0181   
+
+   deltaSentiment  newEntry  week.x  ... Neutral Bearish  Total  X8.week  \
+0               0     False       1  ...     NaN     NaN    NaN      NaN   
+1              -7     False       1  ...     NaN     NaN    NaN      NaN   
+2               0      True       1  ...     NaN     NaN    NaN      NaN   
+3               1     False       1  ...     NaN     NaN    NaN      NaN   
+4               1     False       1  ...     NaN     NaN    NaN      NaN   
+
+   Spread SPYHighWk SPYLowWK  SPYCloseWK week.y lagweek  
+0     NaN       NaN      NaN         NaN    NaN     NaN  
+1     NaN       NaN      NaN         NaN    NaN     NaN  
+2     NaN       NaN      NaN         NaN    NaN     NaN  
+3     NaN       NaN      NaN         NaN    NaN     NaN  
+4     NaN       NaN      NaN         NaN    NaN     NaN  
+
+[5 rows x 23 columns]
+(9560, 23)
+(9560, 23)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's read in our vectorized data from reddit</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>textsIn <span class="op">=</span> pd.read_csv(<span class="st">'../data/01-modified-data/vectorizedReddit.csv'</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Double check shape</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(textsIn.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(7436, 49692)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check columns are sorted by occurence</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(textsIn.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Looks like it is sorted in the proper order</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># How many columns are for a word that is only used once?</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> textsIn.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>textsIn<span class="op">=</span>textsIn[ s.index[s <span class="op">!=</span> <span class="dv">1</span>]   ]</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(textsIn.head())</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>date_utc    2020-07-302020-09-152022-01-032021-11-122020-0...
+title       Sample ETF portfolioPsycho Market Recap - Tue ...
+ticker      QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ...
+comments                                            1065358.0
+00                                                       4387
+                                  ...                        
+ïif                                                         1
+ïred                                                        1
+ïthere                                                      1
+ïyou                                                        1
+üü                                                          1
+Length: 49692, dtype: object
+Index(['date_utc', 'title', 'ticker', 'comments', '00', '000', '00000',
+       '000000000', '000001', '0000050863',
+       ...
+       'zyne', 'zynerba', 'zynex', 'zynga', 'zypot4g', 'zyq8gpy', 'zyxi',
+       'zzhq7gy', 'zzpcoa9', 'zzqa2sj'],
+      dtype='object', length=35405)
+     date_utc                                              title ticker  \
+0  2020-07-30                               Sample ETF portfolio    QQQ   
+1  2020-09-15             Psycho Market Recap - Tue Sept 15 2020    QQQ   
+2  2022-01-03  Here is a Market Recap for today Monday, Janua...    QQQ   
+3  2021-11-12  Here is a Market Recap for today Friday, Novem...    QQQ   
+4  2020-09-30  Here is a Market Recap for today Wed, Sept 30....    QQQ   
+
+   comments  00  000  00000  000000000  000001  0000050863  ...  zyne  \
+0      43.0   0    0      0          0       0           0  ...     0   
+1      17.0   0    0      0          0       0           0  ...     0   
+2      27.0   0    1      0          0       0           0  ...     0   
+3       6.0   0    0      0          0       0           0  ...     0   
+4       5.0   0    2      0          0       0           0  ...     0   
+
+   zynerba  zynex  zynga  zypot4g  zyq8gpy  zyxi  zzhq7gy  zzpcoa9  zzqa2sj  
+0        0      0      0        0        0     0        0        0        0  
+1        0      0      0        0        0     0        0        0        0  
+2        0      0      0        0        0     0        0        0        0  
+3        0      0      0        0        0     0        0        0        0  
+4        0      0      0        0        0     0        0        0        0  
+
+[5 rows x 35405 columns]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="47">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How big a change was removing single-use words?</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>textsIn.shape</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># After removing words only used once,  we have 35k words</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dataIn.head)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Now, lets try and fit the GNB</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># We will need to merge in the activity change data, lagged by one day</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime, timedelta</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'date.x'</span>] <span class="op">=</span> dataIn[<span class="st">'date.x'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: datetime.strptime(x, <span class="st">'%Y-%m-</span><span class="sc">%d</span><span class="st">'</span>).date())</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'date.x'</span>] <span class="op">=</span> dataIn[<span class="st">'date.x'</span>] <span class="op">-</span> timedelta(days <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;bound method NDFrame.head of       Unnamed: 0     X      date.x ticker  activity  sentiment  deltaActivity  \
+0              1  9551  2020-01-02   TSLA    0.0226          0        -0.0014   
+1              2  9552  2020-01-02    SPY    0.0147          3        -0.0341   
+2              3  9553  2020-01-02   ROKU    0.0119          0         0.0000   
+3              4  9554  2020-01-02    QQQ    0.0093          6        -0.0111   
+4              5  9555  2020-01-02   MSFT    0.0116          2        -0.0181   
+...          ...   ...         ...    ...       ...        ...            ...   
+9555        9556     6  2023-10-18   NVDA    0.0695          2         0.0428   
+9556        9557     7  2023-10-18   META    0.0124          1        -0.0064   
+9557        9558     8  2023-10-18   AMZN    0.0185          6        -0.0016   
+9558        9559     9  2023-10-18    AMD    0.0264          2         0.0025   
+9559        9560    10  2023-10-18   AAPL    0.0255          5        -0.0204   
+
+      deltaSentiment  newEntry  week.x  ... Neutral Bearish  Total  X8.week  \
+0                  0     False       1  ...     NaN     NaN    NaN      NaN   
+1                 -7     False       1  ...     NaN     NaN    NaN      NaN   
+2                  0      True       1  ...     NaN     NaN    NaN      NaN   
+3                  1     False       1  ...     NaN     NaN    NaN      NaN   
+4                  1     False       1  ...     NaN     NaN    NaN      NaN   
+...              ...       ...     ...  ...     ...     ...    ...      ...   
+9555               0     False      42  ...     NaN     NaN    NaN      NaN   
+9556               2     False      42  ...     NaN     NaN    NaN      NaN   
+9557               4     False      42  ...     NaN     NaN    NaN      NaN   
+9558              -1     False      42  ...     NaN     NaN    NaN      NaN   
+9559               6     False      42  ...     NaN     NaN    NaN      NaN   
+
+      Spread SPYHighWk SPYLowWK  SPYCloseWK week.y lagweek  
+0        NaN       NaN      NaN         NaN    NaN     NaN  
+1        NaN       NaN      NaN         NaN    NaN     NaN  
+2        NaN       NaN      NaN         NaN    NaN     NaN  
+3        NaN       NaN      NaN         NaN    NaN     NaN  
+4        NaN       NaN      NaN         NaN    NaN     NaN  
+...      ...       ...      ...         ...    ...     ...  
+9555     NaN       NaN      NaN         NaN    NaN     NaN  
+9556     NaN       NaN      NaN         NaN    NaN     NaN  
+9557     NaN       NaN      NaN         NaN    NaN     NaN  
+9558     NaN       NaN      NaN         NaN    NaN     NaN  
+9559     NaN       NaN      NaN         NaN    NaN     NaN  
+
+[9560 rows x 23 columns]&gt;
+&lt;bound method NDFrame.head of       Unnamed: 0     X      date.x ticker  activity  sentiment  deltaActivity  \
+0              1  9551  2020-01-02   TSLA    0.0226          0        -0.0014   
+1              2  9552  2020-01-02    SPY    0.0147          3        -0.0341   
+2              3  9553  2020-01-02   ROKU    0.0119          0         0.0000   
+3              4  9554  2020-01-02    QQQ    0.0093          6        -0.0111   
+4              5  9555  2020-01-02   MSFT    0.0116          2        -0.0181   
+...          ...   ...         ...    ...       ...        ...            ...   
+9555        9556     6  2023-10-18   NVDA    0.0695          2         0.0428   
+9556        9557     7  2023-10-18   META    0.0124          1        -0.0064   
+9557        9558     8  2023-10-18   AMZN    0.0185          6        -0.0016   
+9558        9559     9  2023-10-18    AMD    0.0264          2         0.0025   
+9559        9560    10  2023-10-18   AAPL    0.0255          5        -0.0204   
+
+      deltaSentiment  newEntry  week.x  ... Neutral Bearish  Total  X8.week  \
+0                  0     False       1  ...     NaN     NaN    NaN      NaN   
+1                 -7     False       1  ...     NaN     NaN    NaN      NaN   
+2                  0      True       1  ...     NaN     NaN    NaN      NaN   
+3                  1     False       1  ...     NaN     NaN    NaN      NaN   
+4                  1     False       1  ...     NaN     NaN    NaN      NaN   
+...              ...       ...     ...  ...     ...     ...    ...      ...   
+9555               0     False      42  ...     NaN     NaN    NaN      NaN   
+9556               2     False      42  ...     NaN     NaN    NaN      NaN   
+9557               4     False      42  ...     NaN     NaN    NaN      NaN   
+9558              -1     False      42  ...     NaN     NaN    NaN      NaN   
+9559               6     False      42  ...     NaN     NaN    NaN      NaN   
+
+      Spread SPYHighWk SPYLowWK  SPYCloseWK week.y lagweek  
+0        NaN       NaN      NaN         NaN    NaN     NaN  
+1        NaN       NaN      NaN         NaN    NaN     NaN  
+2        NaN       NaN      NaN         NaN    NaN     NaN  
+3        NaN       NaN      NaN         NaN    NaN     NaN  
+4        NaN       NaN      NaN         NaN    NaN     NaN  
+...      ...       ...      ...         ...    ...     ...  
+9555     NaN       NaN      NaN         NaN    NaN     NaN  
+9556     NaN       NaN      NaN         NaN    NaN     NaN  
+9557     NaN       NaN      NaN         NaN    NaN     NaN  
+9558     NaN       NaN      NaN         NaN    NaN     NaN  
+9559     NaN       NaN      NaN         NaN    NaN     NaN  
+
+[9560 rows x 23 columns]&gt;</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="97">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we subtracted one day, let's add the categorical label variable we are trying to predict and then split the data</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'activityIncrease'</span>] <span class="op">=</span> dataIn[<span class="st">'deltaActivity'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">int</span>(x <span class="op">&gt;</span> <span class="dv">0</span>) )</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Change percent signs to decimals</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'Bearish'</span>] <span class="op">=</span> dataIn[<span class="st">'Bearish'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.rstrip(<span class="st">"%"</span>).astype(<span class="bu">float</span>)<span class="op">/</span><span class="dv">100</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'Bullish'</span>] <span class="op">=</span> dataIn[<span class="st">'Bullish'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.rstrip(<span class="st">"%"</span>).astype(<span class="bu">float</span>)<span class="op">/</span><span class="dv">100</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'Neutral'</span>] <span class="op">=</span> dataIn[<span class="st">'Neutral'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.rstrip(<span class="st">"%"</span>).astype(<span class="bu">float</span>)<span class="op">/</span><span class="dv">100</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'Spread'</span>] <span class="op">=</span> dataIn[<span class="st">'Spread'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.rstrip(<span class="st">"%"</span>).astype(<span class="bu">float</span>)<span class="op">/</span><span class="dv">100</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>AttributeError: 'float' object has no attribute 'rstrip'</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="100">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now that we subtracted one day in the cell above, let's merge the text corpus with the daily activity label</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>textsIn <span class="op">=</span> pd.DataFrame(textsIn)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>textsIn[<span class="st">'date_utc'</span>] <span class="op">=</span> textsIn[<span class="st">'date_utc'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: datetime.strptime(x, <span class="st">'%Y-%m-</span><span class="sc">%d</span><span class="st">'</span>).date())</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>processed <span class="op">=</span> pd.merge(dataIn, textsIn, how <span class="op">=</span> <span class="st">'left'</span>, left_on <span class="op">=</span> [<span class="st">'date.x'</span>, <span class="st">'ticker'</span>], right_on <span class="op">=</span> [<span class="st">'date_utc'</span>, <span class="st">'ticker'</span>] )</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="101">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># now let's check that our merge worked and then split into test, training, and validation</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#print(processed.iloc[:,range(15,25)].head)</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#print(processed.isna().sum() &lt; processed.shape[0])</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>processed2 <span class="op">=</span> processed.dropna(subset<span class="op">=</span>[<span class="st">'date_utc'</span>])</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(processed2.head)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>train, test <span class="op">=</span> train_test_split(processed2, test_size<span class="op">=</span><span class="fl">0.15</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>train, validate <span class="op">=</span> train_test_split(train, test_size <span class="op">=</span> <span class="fl">0.177</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;bound method NDFrame.head of       Unnamed: 0     X      date.x ticker  activity_x  sentiment_x  \
+6              7  9557  2020-01-01   BABA      0.0088            0   
+45            46  9516  2020-01-07   BYND      0.0139            1   
+50            51  9501  2020-01-08   TSLA      0.0689            1   
+55            56  9506  2020-01-08   BYND      0.0144            2   
+56            56  9506  2020-01-08   BYND      0.0144            2   
+...          ...   ...         ...    ...         ...          ...   
+9816        9356   206  2023-09-19   NVDA      0.0445            1   
+9817        9357   207  2023-09-19   MSFT      0.0121            0   
+9819        9359   209  2023-09-19    AMD      0.0330           -6   
+9820        9360   210  2023-09-19   AAPL      0.0323            2   
+9999        9539    29  2023-10-15    AMD      0.0264           -1   
+
+      deltaActivity  deltaSentiment  newEntry  week.x  ... zyne zynerba  \
+6           -0.0103              -2     False       1  ...  0.0     0.0   
+45           0.0027              -1     False       2  ...  0.0     0.0   
+50          -0.0110               0     False       2  ...  0.0     0.0   
+55           0.0005               1     False       2  ...  0.0     0.0   
+56           0.0005               1     False       2  ...  0.0     0.0   
+...             ...             ...       ...     ...  ...  ...     ...   
+9816         0.0152               1     False      38  ...  0.0     0.0   
+9817        -0.0038              -2     False      38  ...  0.0     0.0   
+9819         0.0033             -12     False      38  ...  0.0     0.0   
+9820         0.0018               3     False      38  ...  0.0     0.0   
+9999         0.0084              -4     False      42  ...  0.0     0.0   
+
+      zynex  zynga  zypot4g zyq8gpy zyxi  zzhq7gy zzpcoa9 zzqa2sj  
+6       0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+45      0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+50      0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+55      0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+56      0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+...     ...    ...      ...     ...  ...      ...     ...     ...  
+9816    0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+9817    0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+9819    0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+9820    0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+9999    0.0    0.0      0.0     0.0  0.0      0.0     0.0     0.0  
+
+[2018 rows x 35428 columns]&gt;</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="121">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we have our filtered data, with 2000 observations. Train is 1411</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(train.shape)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we can try and fit our GNB classifier</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.naive_bayes <span class="im">import</span> GaussianNB</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_MNB_model(Xtrn, Xtst, Ytrn, Ytst, i_print<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">#if(i_print):</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">#print(X.shape,Y.shape)</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">#SPLIT</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    x_train<span class="op">=</span>Xtrn</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    y_train<span class="op">=</span>Ytrn</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    x_test<span class="op">=</span>Xtst</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    y_test<span class="op">=</span>Ytst</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># INITIALIZE MODEL </span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> GaussianNB()</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TRAIN MODEL </span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> time.process_time()</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>    model.fit(x_train,y_train)</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    time_train<span class="op">=</span>time.process_time() <span class="op">-</span> start</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># LABEL PREDICTIONS FOR TRAINING AND </span><span class="al">TEST</span><span class="co"> SET </span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> time.process_time()</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    yp_train <span class="op">=</span> model.predict(x_train)</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    yp_test <span class="op">=</span> model.predict(x_test)</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    time_eval<span class="op">=</span>time.process_time() <span class="op">-</span> start</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>    acc_train<span class="op">=</span> accuracy_score(y_train, yp_train)<span class="op">*</span><span class="dv">100</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    acc_test<span class="op">=</span> accuracy_score(y_test, yp_test)<span class="op">*</span><span class="dv">100</span></span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(i_print):</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(acc_train,acc_test,time_train,time_eval)</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (acc_train,acc_test,time_train,time_eval)</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1411, 35428)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="179">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test function on training and validation set</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>nonNumericColumns <span class="op">=</span> [<span class="st">'X'</span>, <span class="st">'activityIncrease'</span>, <span class="st">'date.x'</span>, <span class="st">'Total'</span>, <span class="st">'X8.week'</span>, <span class="st">'date.x'</span>, <span class="st">'SPYHighWk'</span>, <span class="st">'SPYLowWK'</span>, <span class="st">'SPYCloseWK'</span>, <span class="st">'date_utc'</span>, <span class="st">'title'</span>, <span class="st">'ticker'</span>, <span class="st">'date.y'</span>, <span class="st">'sentiment_x'</span>, <span class="st">'deltaActivity'</span>, <span class="st">'deltaSentiment'</span>, <span class="st">'activity_x'</span>, <span class="st">'week.x'</span>, <span class="st">'weekyear'</span>, <span class="st">'newEntry'</span>]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># All of the below are for the text model</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>xtrn <span class="op">=</span> train.drop(columns <span class="op">=</span> nonNumericColumns)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>xtst <span class="op">=</span> validate.drop(columns <span class="op">=</span> nonNumericColumns)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>xreal <span class="op">=</span> test.drop(columns <span class="op">=</span> nonNumericColumns)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># replace remaining NAs</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>xtrn <span class="op">=</span> xtrn.fillna(<span class="dv">0</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>xtst <span class="op">=</span> xtst.fillna(<span class="dv">0</span>)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>xreal <span class="op">=</span> xreal.fillna(<span class="dv">0</span>)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co"># pull out the output feature (increase 1 or 0)</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>ytrn <span class="op">=</span> train[<span class="st">'activityIncrease'</span>]</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>ytst <span class="op">=</span> validate[<span class="st">'activityIncrease'</span>]</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>yrl <span class="op">=</span> test[<span class="st">'activityIncrease'</span>]</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co"># These are for the non-text, tabular model</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>xtabtrn <span class="op">=</span> xtrn.iloc[:,<span class="dv">0</span>:<span class="dv">8</span>]</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>xtabtst <span class="op">=</span> xtst.iloc[:,<span class="dv">0</span>:<span class="dv">8</span>]</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>xtabreal <span class="op">=</span> xreal.iloc[:,<span class="dv">0</span>:<span class="dv">8</span>]</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a><span class="co">#Same output features, no need to repeat, and NAs are already replaced</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">list</span>(xtabtrn.columns.values) )</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>(acc_train,acc_test,time_train,time_eval)<span class="op">=</span>train_MNB_model(xtrn, xtst, ytrn, ytst, i_print<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>['Unnamed: 0', 'Bullish', 'Neutral', 'Bearish', 'Spread', 'week.y', 'lagweek', 'comments']
+74.4153082919915 55.92105263157895 1.046875 1.375</code></pre>
+</div>
+</div>
+<h2 class="anchored">
+Feature selection for Record data
+</h2>
+<div class="cell" data-execution_count="180">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> initialize_arrays_tab():</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> num_features_tab,train_accuracies_tab</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> test_accuracies_tab,train_time_tab,eval_time_tab</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    num_features_tab<span class="op">=</span>[]</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    train_accuracies_tab<span class="op">=</span>[]</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    test_accuracies_tab<span class="op">=</span>[]</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    train_time_tab<span class="op">=</span>[]</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    eval_time_tab<span class="op">=</span>[]</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="co"># start arrays</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>initialize_arrays_tab()</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="co"># DEFINE SEARCH FUNCTION</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> partial_grid_search_tab(num_runs, min_index, max_index):</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, num_runs<span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># SUBSET FEATURES </span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>        upper_index<span class="op">=</span>min_index<span class="op">+</span>i<span class="op">*</span><span class="bu">int</span>((max_index<span class="op">-</span>min_index)<span class="op">/</span>num_runs)</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># temp data</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>        xtraintemp <span class="op">=</span>xtabtrn.iloc[:,<span class="dv">0</span>:upper_index]</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>        xtesttemp <span class="op">=</span>xtabtst.iloc[:,<span class="dv">0</span>:upper_index]</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">#TRAIN </span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>        (acc_train,acc_test,time_train,time_eval)<span class="op">=</span>train_MNB_model(xtraintemp, xtesttemp, ytrn, ytst, i_print<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span>(i<span class="op">%</span><span class="dv">1</span><span class="op">==</span><span class="dv">0</span>):</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(i,upper_index,xtraintemp.shape[<span class="dv">1</span>],acc_train,acc_test)</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>        <span class="co">#RECORD </span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>        num_features_tab.append(xtraintemp.shape[<span class="dv">1</span>])</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>        train_accuracies_tab.append(acc_train)</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>        test_accuracies_tab.append(acc_test)</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>        train_time_tab.append(time_train)</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>        eval_time_tab.append(time_eval)</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a><span class="co"># DENSE SEARCH (SMALL NUMBER OF FEATURES (FAST))</span></span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>partial_grid_search_tab(num_runs<span class="op">=</span><span class="dv">7</span>, min_index<span class="op">=</span><span class="dv">0</span>, max_index<span class="op">=</span> xtabtrn.shape[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1 1 1 57.33522324592487 57.89473684210527
+2 2 2 59.74486180014175 59.86842105263158
+3 3 3 59.88660524450744 60.85526315789473
+4 4 4 61.374911410347266 59.210526315789465
+5 5 5 60.17009213323884 58.223684210526315
+6 6 6 61.09142452161588 57.56578947368421
+7 7 7 63.07583274273565 60.19736842105263</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="181">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># More helper functions</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_results_tab(path_root):</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    out<span class="op">=</span> np.transpose(np.array([num_features_tab,train_accuracies_tab,test_accuracies_tab,train_time_tab,eval_time_tab])) </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    out<span class="op">=</span> pd.DataFrame(out)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    out.to_csv(path_root<span class="op">+</span><span class="st">"_tab.csv"</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co">#UTILITY FUNCTION TO PLOT RESULTS</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_results_tab(path_root):</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">#PLOT-1</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features_tab,train_accuracies_tab,<span class="st">'-or'</span>)</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features_tab,test_accuracies_tab,<span class="st">'-ob'</span>)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'Number of features'</span>)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'ACCURACY: Training (blue) and Test (red)'</span>)</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    plt.savefig(path_root<span class="op">+</span><span class="st">'_tab-1.png'</span>)</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># #PLOT-2</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features_tab,train_time_tab,<span class="st">'-or'</span>)</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features_tab,eval_time_tab,<span class="st">'-ob'</span>)</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'Number of features'</span>)</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'Runtime: training time (red) and evaluation time(blue)'</span>)</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>    plt.savefig(path_root<span class="op">+</span><span class="st">'_tab-2.png'</span>)</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># #PLOT-3</span></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>    plt.plot(np.array(test_accuracies_tab),train_time_tab,<span class="st">'-or'</span>)</span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>    plt.plot(np.array(test_accuracies_tab),eval_time_tab,<span class="st">'-ob'</span>)</span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'test_accuracies'</span>)</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'Runtime: training time (red) and evaluation time (blue)'</span>)</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>    plt.savefig(path_root<span class="op">+</span><span class="st">'_tab-3.png'</span>)</span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># #PLOT-3</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features_tab,np.array(train_accuracies_tab)<span class="op">-</span>np.array(test_accuracies_tab),<span class="st">'-or'</span>)</span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'Number of features'</span>)</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'train_accuracies-test_accuracies'</span>)</span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>    plt.savefig(path_root<span class="op">+</span><span class="st">'_tab-4.png'</span>)</span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>output_dir <span class="op">=</span> <span class="st">"./"</span></span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>save_results_tab(output_dir<span class="op">+</span><span class="st">"/partial_grid_search"</span>)</span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>plot_results_tab(output_dir<span class="op">+</span><span class="st">"/partial_grid_search"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-12-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-12-output-3.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-12-output-4.png" class="img-fluid"></p>
+</div>
+</div>
+<h2 class="anchored">
+Feature selection for Text data
+</h2>
+<div class="cell" data-execution_count="182">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># now lets start removing features using code from the lab demo</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> initialize_arrays():</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> num_features,train_accuracies</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> test_accuracies,train_time,eval_time</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    num_features<span class="op">=</span>[]</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    train_accuracies<span class="op">=</span>[]</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    test_accuracies<span class="op">=</span>[]</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    train_time<span class="op">=</span>[]</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    eval_time<span class="op">=</span>[]</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="co"># start arrays</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>initialize_arrays()</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co"># DEFINE SEARCH FUNCTION</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> partial_grid_search(num_runs, min_index, max_index):</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, num_runs<span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># SUBSET FEATURES </span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>        upper_index<span class="op">=</span>min_index<span class="op">+</span>i<span class="op">*</span><span class="bu">int</span>((max_index<span class="op">-</span>min_index)<span class="op">/</span>num_runs)</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># temp data</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>        xtraintemp <span class="op">=</span>xtrn.iloc[:,<span class="dv">0</span>:upper_index]</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>        xtesttemp <span class="op">=</span>xtst.iloc[:,<span class="dv">0</span>:upper_index]</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>        <span class="co">#TRAIN </span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>        (acc_train,acc_test,time_train,time_eval)<span class="op">=</span>train_MNB_model(xtraintemp, xtesttemp, ytrn, ytst, i_print<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span>(i<span class="op">%</span><span class="dv">5</span><span class="op">==</span><span class="dv">0</span>):</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(i,upper_index,xtraintemp.shape[<span class="dv">1</span>],acc_train,acc_test)</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>        <span class="co">#RECORD </span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>        num_features.append(xtraintemp.shape[<span class="dv">1</span>])</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>        train_accuracies.append(acc_train)</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>        test_accuracies.append(acc_test)</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>        train_time.append(time_train)</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>        eval_time.append(time_eval)</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a><span class="co"># DENSE SEARCH (SMALL NUMBER OF FEATURES (FAST))</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>partial_grid_search(num_runs<span class="op">=</span><span class="dv">100</span>, min_index<span class="op">=</span><span class="dv">0</span>, max_index<span class="op">=</span> xtrn.shape[<span class="dv">1</span>])</span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a><span class="co"># SPARSE SEARCH (LARGE NUMBER OF FEATURES (SLOWER))</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a><span class="co">#partial_grid_search(num_runs=20, min_index=1000, max_index=10000)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>5 1770 1770 67.54075124025513 53.61842105263158
+10 3540 3540 68.67469879518072 53.289473684210535
+15 5310 5310 70.16300496102055 53.61842105263158
+20 7080 7080 71.58043940467753 53.94736842105263
+25 8850 8850 72.85613040396882 53.61842105263158
+30 10620 10620 73.49397590361446 51.64473684210527
+35 12390 12390 73.42310418143161 52.63157894736842
+40 14160 14160 73.5648476257973 52.30263157894737
+45 15930 15930 73.8483345145287 51.973684210526315
+50 17700 17700 74.20269312544295 53.94736842105263
+55 19470 19470 73.91920623671156 53.94736842105263
+60 21240 21240 73.8483345145287 52.30263157894737
+65 23010 23010 74.1318214032601 53.61842105263158
+70 24780 24780 74.06094968107725 52.960526315789465
+75 26550 26550 74.1318214032601 54.60526315789473
+80 28320 28320 74.20269312544295 53.61842105263158
+85 30090 30090 73.99007795889439 53.94736842105263
+90 31860 31860 74.1318214032601 53.94736842105263
+95 33630 33630 74.27356484762579 54.276315789473685
+100 35400 35400 74.4153082919915 55.92105263157895</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="188">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># More helper functions</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_results(path_root):</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    out<span class="op">=</span> np.transpose(np.array([num_features,train_accuracies,test_accuracies,train_time,eval_time])) </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    out<span class="op">=</span> pd.DataFrame(out)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    out.to_csv(path_root<span class="op">+</span><span class="st">".csv"</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="co">#UTILITY FUNCTION TO PLOT RESULTS</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_results(path_root):</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">#PLOT-1</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features,train_accuracies,<span class="st">'-or'</span>)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features,test_accuracies,<span class="st">'-ob'</span>)</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'Number of features'</span>)</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'ACCURACY: Training (blue) and Test (red)'</span>)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>    plt.savefig(path_root<span class="op">+</span><span class="st">'-1.png'</span>)</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># #PLOT-2</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features,train_time,<span class="st">'-or'</span>)</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features,eval_time,<span class="st">'-ob'</span>)</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'Number of features'</span>)</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'Runtime: training time (red) and evaluation time(blue)'</span>)</span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>    plt.savefig(path_root<span class="op">+</span><span class="st">'-2.png'</span>)</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># #PLOT-3</span></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>    plt.plot(np.array(test_accuracies),train_time,<span class="st">'-or'</span>)</span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>    plt.plot(np.array(test_accuracies),eval_time,<span class="st">'-ob'</span>)</span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'test_accuracies'</span>)</span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'Runtime: training time (red) and evaluation time (blue)'</span>)</span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>    plt.savefig(path_root<span class="op">+</span><span class="st">'-3.png'</span>)</span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># #PLOT-3</span></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>    plt.plot(num_features,np.array(train_accuracies)<span class="op">-</span>np.array(test_accuracies),<span class="st">'-or'</span>)</span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'Number of features'</span>)</span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'train_accuracies-test_accuracies'</span>)</span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>    plt.savefig(path_root<span class="op">+</span><span class="st">'-4.png'</span>)</span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>output_dir <span class="op">=</span> <span class="st">"./"</span></span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>save_results(output_dir<span class="op">+</span><span class="st">"/partial_grid_search"</span>)</span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>plot_results(output_dir<span class="op">+</span><span class="st">"/partial_grid_search"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-14-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-14-output-3.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-14-output-4.png" class="img-fluid"></p>
+</div>
+</div>
+<h2 class="anchored">
+Naive Bayes with Labeled Record Data
+</h2>
+<div class="cell" data-execution_count="215">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Based on previous section, using all 8 features is ideal</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  fit model finally, report on overall accuracy</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn <span class="im">import</span> metrics</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>realTabModel <span class="op">=</span> GaussianNB()</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>realTabModel.fit(xtabtrn, ytrn)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>realTabTestPreds <span class="op">=</span> realTabModel.predict(xtabreal)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="op">=</span> metrics.confusion_matrix(yrl.values, realTabTestPreds)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>cm_display <span class="op">=</span> metrics.ConfusionMatrixDisplay(confusion_matrix <span class="op">=</span> confusion_matrix, display_labels <span class="op">=</span> [<span class="va">False</span>, <span class="va">True</span>])</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>cm_display.plot()</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>tabOutcomeData <span class="op">=</span> pd.DataFrame.from_dict( {<span class="st">'ticker'</span>: test[<span class="st">'ticker'</span>], <span class="st">'comments'</span>: xtabreal[<span class="st">'comments'</span>], <span class="st">'real value'</span>: yrl.values, <span class="st">'predicted value'</span>: realTabTestPreds, <span class="st">"miss"</span>: yrl.values <span class="op">-</span> realTabTestPreds} )</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>tabOutcomeData.groupby([<span class="st">'ticker'</span>])[<span class="st">'miss'</span>].mean().to_frame(), x <span class="op">=</span> <span class="st">'miss'</span>, y <span class="op">=</span> <span class="st">'ticker'</span>)</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Average Prediction Miss (-1 = mistaken increase, 1 = mistaken decrease)'</span>)</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Stock Ticker'</span>)</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Average Prediction Misses by Stock'</span>)</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>sns.boxplot(data<span class="op">=</span>tabOutcomeData, x <span class="op">=</span> <span class="st">'predicted value'</span>, y <span class="op">=</span> <span class="st">'comments'</span>)</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Model Prediction (0 decrease, 1 increase)'</span>)</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Number of Comments on Related Posts'</span>)</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Predictions vs. Comments on Reddit Posts'</span>)</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-15-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-15-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-15-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<p>The optimal model for the record data was the one that included all 7 predictors. I identified this in the feature selection plots using the elbow method, which showed that the increase in performance never leveled off as more tabular features were added.</p>
+<p>Then, I fit this model on the training data and used it to predict values in the test set, the results of which are pictured in the first image above, the confusion matrix. While I expected the model to perform worse on the test set, the overall accuracy score (~0.64) was similar to those observed in the training (~0.60) and validation (~0.63) sets. The model appears to have learned to be successful by predicting more 1’s (or increases) than 0’s (or decreases). This gave the model high sensitivity but low precision.</p>
+<p>In terms of over and under fitting, I believe my model is currently underfit although it includes all available features, with poor performance over all. I do not believe the record data model has been over fit because it has similar performance in both the training and test sets, so it has low variance. Yet the model has high bias in both training and test sets, only capturing an accurate result 60% of the time, barely beating a coin toss.</p>
+<p>The projects findings will be documented in a final slideshow, which will polish up and abridge the work contained in this page.</p>
+<p>In conclusion: A Gaussian Naive Bayes classifier performs moderately well at predicting whether a given stock in the top-10 rankings of retail trader activity will see an increase or decrease in activity on the next trading day. With only 7 input features (such as the sentiment of individual investors and the number of reddit comments on posts mentioning the stock), the model identifies increases or decreases correctly about 64% of the time. While this is an improvement over random chance, the model could certainly be improved. The model also shows some relationships between variables: Certain stocks were almost always predicted over-optimisticly, such as SNAP (Snapchat), which was a famous stock that retail investors were interested in but lost money on. The number of comments also appears to be negatively correlated to stock increases, with tickers that had more comments on related posts being less likely to have an increase predicted the next day.</p>
+<h2 class="anchored">
+Naive Bayes with Labeled Text Data
+</h2>
+<p>Using your optimal feature set from the previous section, fit a final “optimal” NB model for your Record data. Report and comment on the findings. It is required that you create code, appropriate visualizations, result summaries, confusion matrices, etc Describe how the trained model is tested on the testing dataset. Discuss the evaluation metrics used to assess the performance of the Naive Bayes classifier (e.g., accuracy, precision, recall, F1-score). Discuss the concepts of overfitting and under-fitting and whether your model is doing it. Discuss the model’s performance in terms of accuracy and other relevant metrics. Describe how the project findings will be documented and reported, including the format of reports or presentations. e.g.&nbsp;what is the output that you generate. What does the output mean? What does it tell you about your data? Does your model do a good job of predicting your test data? Include and discuss relevant visualizations, results, the confusion matrices, etc . Create and include a minimum of three visualizations for each case (text and record classification). Write a conclusion paragraph interpreting the results. Note, this is not the same as a write-up of technical methodological details.</p>
+<div class="cell" data-execution_count="216">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit model finally, report on overall accuracy</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># based on the previous charts, we can use the elbow method for </span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>realModel <span class="op">=</span> GaussianNB()</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>realModel.fit(xtrn.iloc[:,<span class="dv">0</span>:<span class="dv">10000</span>], ytrn)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>realTestPreds <span class="op">=</span> realModel.predict(xreal.iloc[:,<span class="dv">0</span>:<span class="dv">10000</span>])</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(realTestPreds)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(yrl.values)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="op">=</span> metrics.confusion_matrix(yrl.values, realTestPreds)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>cm_display <span class="op">=</span> metrics.ConfusionMatrixDisplay(confusion_matrix <span class="op">=</span> confusion_matrix, display_labels <span class="op">=</span> [<span class="va">False</span>, <span class="va">True</span>])</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>cm_display.plot()</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>outcomeData <span class="op">=</span> pd.DataFrame.from_dict( {<span class="st">'ticker'</span>: test[<span class="st">'ticker'</span>], <span class="st">'comments'</span>: xreal[<span class="st">'comments'</span>], <span class="st">'real value'</span>: yrl.values, <span class="st">'predicted value'</span>: realTestPreds, <span class="st">"miss"</span>: yrl.values <span class="op">-</span> realTestPreds} )</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>outcomeData.groupby([<span class="st">'ticker'</span>])[<span class="st">'miss'</span>].mean().to_frame(), x <span class="op">=</span> <span class="st">'miss'</span>, y <span class="op">=</span> <span class="st">'ticker'</span>)</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Average Prediction Miss (-1 = mistaken increase, 1 = mistaken decrease)'</span>)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Stock Ticker'</span>)</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Average Prediction Misses by Stock'</span>)</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>sns.boxplot(data<span class="op">=</span>outcomeData, x <span class="op">=</span> <span class="st">'predicted value'</span>, y <span class="op">=</span> <span class="st">'comments'</span>)</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Model Prediction (0 decrease, 1 increase)'</span>)</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Number of Comments on Related Posts'</span>)</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Predictions vs. Comments on Reddit Posts'</span>)</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 0 1 1 0 0
+ 1 1 1 0 1 0 1 0 1 0 1 1 1 1 0 1 0 1 1 1 1 0 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1
+ 0 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1
+ 1 0 1 1 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 0 1
+ 1 1 0 1 1 0 1 0 1 1 1 1 1 1 1 1 1 0 1 1 0 1 1 1 1 0 1 0 1 1 1 1 0 1 1 1 1
+ 0 1 1 1 1 1 0 0 1 1 1 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 1 0 1 0 0 1 0 1 1 1 1
+ 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 1 1 1 0 1 1 1 1 0 0 1 1
+ 1 1 0 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 1 1 0 1 1 1 0 1 1 1 1 1 1 0 1 1 0
+ 0 0 1 1 1 1 1]
+[1 1 0 1 1 1 1 0 1 1 1 0 0 1 0 1 1 0 1 0 1 1 0 0 0 0 0 1 1 1 0 1 0 0 1 0 0
+ 0 1 1 0 1 1 1 1 1 0 1 1 1 1 1 0 1 1 1 1 0 0 1 1 0 0 1 0 1 0 0 1 1 1 1 1 0
+ 1 1 1 1 1 1 1 0 0 0 0 1 1 0 1 1 0 1 1 1 1 1 0 0 0 1 0 1 1 1 1 0 1 1 1 0 1
+ 0 1 1 1 1 0 0 0 1 1 0 1 1 1 1 0 0 1 0 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 0 1
+ 0 0 1 1 1 0 1 1 1 0 1 1 0 0 0 1 1 1 1 0 1 0 0 1 0 0 0 0 1 1 1 1 0 0 0 0 1
+ 1 0 0 1 1 1 0 0 0 1 1 1 1 0 0 0 0 1 0 0 0 1 1 0 1 1 1 0 1 0 1 1 0 0 0 1 1
+ 0 1 0 1 0 1 0 1 1 0 1 1 0 0 0 1 0 1 1 0 0 0 1 1 1 0 1 1 0 1 0 0 1 0 1 1 0
+ 1 1 1 1 1 1 0 0 1 1 1 1 1 0 0 0 1 1 0 1 0 1 1 1 0 1 1 1 1 1 0 0 0 0 1 0 1
+ 1 1 1 1 0 0 1]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-16-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-16-output-3.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="naivebayes_files/figure-html/cell-16-output-4.png" class="img-fluid"></p>
+</div>
+</div>
+<p>For the textual data Gaussian Naive Bayes classifier, it required more deduction to pick the correct number of features. This is because I began with about 35,000 columns in the dataset, due to the large number of unique words used in the reddit text corpus. However, using the elbow method, it appeared that the model’s gains in performance peaked around the 10,000 feature mark. This number was also the point where the model reached its approximate peak in performance in the validation set, so I was curious to extend it to the test set and determine if it would continue to have low bias.</p>
+<p>As such, I fit this model on the training data and used it to predict values in the test set, the results of which are pictured in the first image above, the confusion matrix. Surprisingly, the far more comlicated model performed worse on the test set in terms of overall accuracy than the simple, 7-feature model (~0.61 instead of ~0.64). This performance was similar to those observed in the training (~0.60) and validation (~0.63) sets. Once again, the model appears to have learned to be successful by predicting more 1’s (or increases) than 0’s (or decreases). This gave the model high sensitivity but low precision.</p>
+<p>In terms of over and under fitting, I believe the text data model model is still underfit, because it continues to have high bias and low variance across the training and test set. This is supported by the model’s similar accuracy in both the training and test datasets. These findings will also be incorporated into a slideshow, along with, potentially, further work to tune the text data analysis.</p>
+<p>In conclusion: A Gaussian Naive Bayes classifier trained on 1400 reddit posts performs moderately well at predicting whether a given stock in the top-10 rankings of retail trader activity will see an increase or decrease in activity on the next trading day. With 10,000 input features, the model identifies increases or decreases correctly about 61% of the time. While this is an improvement over random chance, the model could certainly be improved. As a point of interest, I included the same tabular data points in the text model as well, and found the relationships between the variables had changed. When accounting for textual data from reddit, the model begins to predict increases for stock tickers with a large number of comments in related posts. Further, the model’s performance changed for particular stocks, with SNAP (Snapchat) no longer being tied with SQQQ for the most optimistic performance. Based on these results, it does not seem that reddit post texts contain a large amount of useful information for predicting retail investor actvity.</p>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -143,6 +143,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Data Exploration</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../naivebayes/naivebayes.html" rel="" target="">
+ <span class="menu-text">Naive Bayes</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../clustering/clustering.html" rel="" target="">
  <span class="menu-text">Clustering</span></a>
   </li>  
@@ -203,14 +207,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored">
 Clean Record Data in R
 </h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <h2 class="anchored">
 Cleaning Reddit Text Corpus in Python
 </h2>
+<p>Most of my work on preparing the text data is on the Naive Bayes tab. Below I take the reddit data and</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#positiveLingo &lt;- c("call", "calls", "long", "hold", "buy", "bull", "bullish", "bulls", "support", "strong")</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#negativeLingo &lt;- c("put", "puts", "short", "shorters", "short-sellers", "sell", "sellers", "bear", "bears", "bearish", "weakness", "weak")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;built-in function print&gt;</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>os.getcwd()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'C:\\Users\\corwi\\Documents\\dsan-5000-project-corwindark\\dsan-website\\5000-website\\datacleaning'</code></pre>
+</div>
+</div>
+<p>I ran the following code to clean my data:</p>
+<p>from sklearn.feature_extraction.text import CountVectorizer import numpy as np import pandas as pd import os import subprocess import sys from nltk.stem import PorterStemmer</p>
+<p>#subprocess.call([sys.executable, ‘-m’, ‘pip’, ‘install’, ‘nltk’])</p>
+<p>os.getcwd()</p>
+<p>redditTexts = pd.read_excel(“./data/01-modified-data/sampleRedditText.xlsx”, sheet_name=“Sheet1”)</p>
+<p>redditTexts.head() #positiveLingo &lt;- c(“call”, “calls”, “long”, “hold”, “buy”, “bull”, “bullish”, “bulls”, “support”, “strong”) #negativeLingo &lt;- c(“put”, “puts”, “short”, “shorters”, “short-sellers”, “sell”, “sellers”, “bear”, “bears”, “bearish”, “weakness”, “weak”)</p>
+<p>removeNAtexts = redditTexts.dropna(subset = [‘text’])</p>
+<p>stemmer = PorterStemmer()</p>
+<p>removeNAtexts[“text”] = removeNAtexts[“text”].apply(lambda x: x.split())</p>
+<p>#df[‘stemmed’] = df[‘unstemmed’].apply(lambda x: [stemmer.stem(y) for y in x])</p>
+<p>removeNAtexts[“text”] = removeNAtexts[“text”].apply(lambda x: [stemmer.stem(y) for y in x])</p>
+<p>removeNAtexts[“text”] = removeNAtexts[“text”].apply(lambda x: ’ ’.join(x))</p>
+<p>vectorizer = CountVectorizer() Xs = vectorizer.fit_transform(removeNAtexts[“text”])<br>
+#print(type(Xs))</p>
+<p>col_names=vectorizer.get_feature_names_out()</p>
+<p>smallReddit = removeNAtexts[[“date_utc”, “title”, “ticker”, “comments”]]</p>
+<p>smallReddit.index</p>
+<p>b = pd.DataFrame(Xs.toarray(), columns=col_names, index= smallReddit.index)</p>
+<p>redditCV = pd.concat([smallReddit, b], axis=1)</p>
+<p>redditCV.head()</p>
+<p>redditCV.to_csv(‘./data/01-modified-data/vectorizedReddit.csv’, index=False) #print(df)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># VOCABULARY DICTIONARY</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#print("vocabulary = ",vectorizer.vocabulary_)   </span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># STOP WORDS </span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#print("stop words =", vectorizer.stop_words)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#print("col_names=",col_names)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#print("CORPUS WIDE WORD COUNTS:",np.sum(Xs,axis=0))</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#print("WORDS PER DOCUMENT:\n",np.sum(Xs,axis=1))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>~51700 words without stemming ~49692 words after stemming</p>
 <h2 class="anchored">
+<p>Now, let’s</p>
 
 
 

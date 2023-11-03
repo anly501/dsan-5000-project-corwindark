@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -94,6 +60,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -143,6 +111,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Data Exploration</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../naivebayes/naivebayes.html" rel="" target="">
+ <span class="menu-text">Naive Bayes</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../clustering/clustering.html" rel="" target="">
  <span class="menu-text">Clustering</span></a>
   </li>  
@@ -178,7 +150,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#get-a-particular-stocks-mentions-in-titles-in-each-of-the-7-subreddits" id="toc-get-a-particular-stocks-mentions-in-titles-in-each-of-the-7-subreddits" class="nav-link active" data-scroll-target="#get-a-particular-stocks-mentions-in-titles-in-each-of-the-7-subreddits">get a particular stock’s mentions in titles in each of the 7 subreddits</a></li>
+  <li><a href="#found-subreddits-by-measuring-overlap-from-httpssubredditstats.comsubreddit-user-overlapssuperstonk" id="toc-found-subreddits-by-measuring-overlap-from-httpssubredditstats.comsubreddit-user-overlapssuperstonk" class="nav-link" data-scroll-target="#found-subreddits-by-measuring-overlap-from-httpssubredditstats.comsubreddit-user-overlapssuperstonk">found subreddits by measuring overlap from https://subredditstats.com/subreddit-user-overlaps/superstonk</a></li>
+  <li><a href="#which-is-calculated-based-on-how-likely-users-are-to-post-on-one-or-the-other-subs" id="toc-which-is-calculated-based-on-how-likely-users-are-to-post-on-one-or-the-other-subs" class="nav-link" data-scroll-target="#which-is-calculated-based-on-how-likely-users-are-to-post-on-one-or-the-other-subs">which is calculated based on how likely users are to post on one or the other subs</a></li>
+  <li><a href="#targeting-investment-related-subs-with-400k-users" id="toc-targeting-investment-related-subs-with-400k-users" class="nav-link" data-scroll-target="#targeting-investment-related-subs-with-400k-users">targeting investment related subs with &gt;400k users</a></li>
+  <li><a href="#loop-through-subreddits-and-get-titles-from-past-month" id="toc-loop-through-subreddits-and-get-titles-from-past-month" class="nav-link" data-scroll-target="#loop-through-subreddits-and-get-titles-from-past-month">loop through subreddits and get titles from past month</a></li>
+  <li><a href="#get-all-unique-stocks-in-the-dataset-of-top-retail-traded-securities" id="toc-get-all-unique-stocks-in-the-dataset-of-top-retail-traded-securities" class="nav-link" data-scroll-target="#get-all-unique-stocks-in-the-dataset-of-top-retail-traded-securities">get all unique stocks in the dataset of top retail-traded securities</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -201,164 +184,77 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 <p>For this project, I need to gather a range of data on retail investor sentiment. Reviewing the literature, it does not appear that a consesus has been reached on which mediums are most useful for measuring retail investor trades, let alone their sentiment. After an extensive review, I decided to try and construct a set of trading signals from the following: 1. Daily NASDAQ data on the top-10 retail investor held companies (API through R Quandl Package) 2. Text data from popular stock-trading subreddits (Reddit API through R) 3. Stocktwits mentions of popular companies through (Stocksera API in Python) 4. Weekly polls of investor sentiment from the American Association of Individual Investors (downloaded as CSV) 5. Text data from major financial new companies</p>
-<p>Starting with dataset 1: Nasdaq retail investor holdings</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>-- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>v ggplot2 3.3.5     v purrr   0.3.4
-v tibble  3.2.1     v dplyr   1.1.2
-v tidyr   1.2.0     v stringr 1.4.0
-v readr   2.1.2     v forcats 0.5.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>-- Conflicts ------------------------------------------ tidyverse_conflicts() --
-x dplyr::filter() masks stats::filter()
-x dplyr::lag()    masks stats::lag()</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Quandl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: xts</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: zoo</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'zoo'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
+<p>Starting with dataset 1: Nasdaq retail investor holdings ``{r} library(tidyverse) library(Quandl) library(lubridate) library(RedditExtractoR) library(reticulate) library(xlsx)</p>
+<p>Quandl.api_key(“psq4nx69HDimf2kQcxZJ”) data &lt;- Quandl.datatable(“NDAQ/RTAT10”, paginate = TRUE)</p>
+<p>cleanData &lt;- data %&gt;% mutate(date = ymd(date)) %&gt;% filter(year(date) &gt; 2019)</p>
+<p>cleanData &lt;- cleanData[order(cleanData<span class="math inline">\(date),] cleanData\)</span>deltaActivity &lt;- vector(mode = “numeric”, length = nrow(cleanData)) cleanData<span class="math inline">\(deltaSentiment &lt;- vector(mode = "numeric", length = nrow(cleanData)) cleanData\)</span>newEntry &lt;- vector(mode = ‘logical’, length = nrow(cleanData))</p>
+<p>for(i in 1:nrow(cleanData)) { if(i %% 1000 == 0) { print(i) } prevDay &lt;- cleanData %&gt;% filter(day(date) == day(cleanData<span class="math inline">\(date[i]) - 1) %&gt;%  filter(ticker == cleanData\)</span>ticker[i])</p>
+<pre><code>if(nrow(prevDay) &gt; 0) {
 
-    as.Date, as.Date.numeric</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-######################### Warning from 'xts' package ##########################
-#                                                                             #
-# The dplyr lag() function breaks how base R's lag() function is supposed to  #
-# work, which breaks lag(my_xts). Calls to lag(my_xts) that you type or       #
-# source() into this session won't work correctly.                            #
-#                                                                             #
-# Use stats::lag() to make sure you're not using dplyr::lag(), or you can add #
-# conflictRules('dplyr', exclude = 'lag') to your .Rprofile to stop           #
-# dplyr from breaking base R's lag() function.                                #
-#                                                                             #
-# Code in packages is not affected. It's protected by R's namespace mechanism #
-# Set `options(xts.warn_dplyr_breaks_lag = FALSE)` to suppress this warning.  #
-#                                                                             #
-###############################################################################</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'xts'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:dplyr':
+    cleanData$deltaActivity[i] = cleanData$activity[i] - prevDay$activity[1]
+    cleanData$deltaSentiment[i] = cleanData$sentiment[i] - prevDay$sentiment[1]
+    cleanData$newEntry[i] = FALSE
 
-    first, last</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Quandl.api_key</span>(<span class="st">"psq4nx69HDimf2kQcxZJ"</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">Quandl.datatable</span>(<span class="st">"NDAQ/RTAT10"</span>, <span class="at">paginate =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>        date ticker activity sentiment
-1 2023-10-06   TSLA   0.1288         1
-2 2023-10-06   TQQQ   0.0240        -2
-3 2023-10-06   SQQQ   0.0201        -2
-4 2023-10-06    SPY   0.0364         5
-5 2023-10-06    QQQ   0.0308         3
-6 2023-10-06   NVDA   0.0467         2</code></pre>
-</div>
-</div>
+}else {
+    cleanData$newEntry[i] = TRUE
+}</code></pre>
+<p>}</p>
+<p>colnames(cleanData) hist(cleanData$deltaActivity)</p>
+<p>head(cleanData, 100) getwd() #write.csv(cleanData, “./data/01-modified-data/cleanRTAT.csv”) ``</p>
 <p>Here I put my api key into the quandl function and I am able to get data going back to 2016 with no issue.</p>
 <p>Dataset 2: Text data from reddit</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get a particular stock's mentions in titles in each of the 7 subreddits</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># found subreddits by measuring overlap from https://subredditstats.com/subreddit-user-overlaps/superstonk</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># which is calculated based on how likely users are to post on one or the other subs</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># targeting investment related subs with &gt;400k users</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># loop through subreddits and get titles from past month</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("RedditExtractoR", repos='https://cloud.r-project.org/')</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RedditExtractoR)</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("reticulate")</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>stockSubreddits <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"wallstreetbets"</span>,</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"stocks"</span>,</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"options"</span>,</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"investing"</span>,</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"stockamrket"</span>,</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"superstonk"</span>,</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"wallstreetbetsnew"</span></span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>links <span class="ot">&lt;-</span> <span class="fu">find_thread_urls</span>(<span class="at">keywords =</span> <span class="st">"SPY"</span>, <span class="at">subreddit =</span> <span class="st">"stocks"</span>, <span class="at">sort_by =</span> <span class="st">"hot"</span>, <span class="at">period =</span> <span class="st">"day"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>parsing URLs on page 1...</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(links)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                                                  date_utc  timestamp
-r/Stocks Daily Discussion Monday - Oct 09, 2023 2023-10-09 1696843810
-                                                                                          title
-r/Stocks Daily Discussion Monday - Oct 09, 2023 r/Stocks Daily Discussion Monday - Oct 09, 2023
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  text
-r/Stocks Daily Discussion Monday - Oct 09, 2023 These daily discussions run from Monday to Friday including during our themed posts.\n\nSome helpful links:\n\n* [Finviz](https://finviz.com/quote.ashx?t=spy) for charts, fundamentals, and aggregated news on individual stocks\n* [Bloomberg market news](https://www.bloomberg.com/markets)\n* StreetInsider news:\n  * [Market Check](https://www.streetinsider.com/Market+Check) - Possibly why the market is doing what it's doing including sudden spikes/dips\n  * [Reuters aggregated](https://www.streetinsider.com/Reuters) - Global news\n\nIf you have a basic question, for example "what is EPS," then google "investopedia EPS" and click the investopedia article on it; do this for everything until you have a more in depth question or just want to share what you learned.\n\nPlease discuss your portfolios in the [Rate My Portfolio sticky.](https://www.reddit.com/r/stocks/search?q=author%3Aautomoderator+title%3A%22Rate+My+Portfolio%22&amp;amp;restrict_sr=on&amp;amp;sort=new&amp;amp;t=all).\n\nSee our past [daily discussions here.](https://www.reddit.com/r/stocks/search?q=author%3Aautomoderator+%22r%2Fstocks+daily+discussion%22&amp;amp;restrict_sr=on&amp;amp;sort=new&amp;amp;t=all)  Also links for:  [Technicals](https://www.reddit.com/r/stocks/search?q=author%3Aautomoderator+title%3Atechnicals&amp;amp;restrict_sr=on&amp;amp;include_over_18=on&amp;amp;sort=new&amp;amp;t=all) Tuesday, [Options Trading](https://www.reddit.com/r/stocks/search?q=author%3Aautomoderator+title%3Aoptions&amp;amp;restrict_sr=on&amp;amp;include_over_18=on&amp;amp;sort=new&amp;amp;t=all) Thursday, and [Fundamentals](https://www.reddit.com/r/stocks/search?q=author%3Aautomoderator+title%3Afundamentals&amp;amp;restrict_sr=on&amp;amp;include_over_18=on&amp;amp;sort=new&amp;amp;t=all) Friday.
-                                                subreddit comments
-r/Stocks Daily Discussion Monday - Oct 09, 2023    stocks      203
-                                                                                                                                          url
-r/Stocks Daily Discussion Monday - Oct 09, 2023 https://www.reddit.com/r/stocks/comments/173nlq2/rstocks_daily_discussion_monday_oct_09_2023/</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#threadContent &lt;- get_thread_content(links)</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">#threadContent[1]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>``{r}</p>
+<section id="get-a-particular-stocks-mentions-in-titles-in-each-of-the-7-subreddits" class="level1">
+<h1>get a particular stock’s mentions in titles in each of the 7 subreddits</h1>
+</section>
+<section id="found-subreddits-by-measuring-overlap-from-httpssubredditstats.comsubreddit-user-overlapssuperstonk" class="level1">
+<h1>found subreddits by measuring overlap from https://subredditstats.com/subreddit-user-overlaps/superstonk</h1>
+</section>
+<section id="which-is-calculated-based-on-how-likely-users-are-to-post-on-one-or-the-other-subs" class="level1">
+<h1>which is calculated based on how likely users are to post on one or the other subs</h1>
+</section>
+<section id="targeting-investment-related-subs-with-400k-users" class="level1">
+<h1>targeting investment related subs with &gt;400k users</h1>
+</section>
+<section id="loop-through-subreddits-and-get-titles-from-past-month" class="level1">
+<h1>loop through subreddits and get titles from past month</h1>
+<p>#install.packages(“RedditExtractoR”, repos=‘https://cloud.r-project.org/’)</p>
+<p>stockSubreddits &lt;- c( “wallstreetbets”, “stocks”, “options”, “investing”, “stockamrket”, “superstonk”, “wallstreetbetsnew” )</p>
+<p>links &lt;- find_thread_urls(keywords = “QQQ”, subreddit = “stocks”, sort_by = “top”, period = “all”)</p>
+<p>links &lt;- tibble(links)</p>
+<p>links$ticker = “QQQ”</p>
+</section>
+<section id="get-all-unique-stocks-in-the-dataset-of-top-retail-traded-securities" class="level1">
+<h1>get all unique stocks in the dataset of top retail-traded securities</h1>
+<p>tempClean &lt;- read.csv(‘../data/01-modified-data/cleanRTAT.csv’)</p>
+<p>topStocks &lt;- sort(table(tempClean$ticker), decreasing = TRUE)[1:100]</p>
+<p>uqTickers &lt;- rownames(topStocks)</p>
+<p>print(uqTickers)</p>
+<p>for(i in 1:length(uqTickers)) { print(i / nrow(uqTickers))</p>
+<pre><code>templinks &lt;- find_thread_urls(keywords = uqTickers[i], subreddit = "stocks", sort_by = "top", period = "all")
+templinks$ticker &lt;- uqTickers[i]
+links &lt;- rbind(links, templinks)</code></pre>
+<p>}</p>
+<p>write.xlsx(links,“../data/01-modified-data/sampleRedditText.xlsx”)</p>
+<p>``</p>
 <p>Here I have gathered a list of 7 stock trading subreddits, which I created by searching for subreddits which mentioned individual stocks and investing, which also had more than ~400k subscribers. Then, I can use the find_thread_urls command to get a list of threads which mention particular keywords. For this initial gathering step, I simply gather posts with they keyword “SPY,” a ticker for the S&amp;P 500, from r/stocks, a major investing subreddit.</p>
+<p>Updated Method: using r/stocks only, get posts for the 100 most common tickers in the most-held datatable.</p>
 <ol start="3" type="1">
-<li>Stocktwits rankings</li>
+<li>Stocktwits rankings ``{python} # stocksera # https://pypi.org/project/stocksera/ # use this for news ratings, stocktwits website mentions and ranking # api key: 2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1</li>
 </ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># stocksera</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># https://pypi.org/project/stocksera/</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># use this for news ratings, stocktwits website mentions and ranking</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># api key: 2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> install(name):</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    subprocess.call([sys.executable, <span class="st">'-m'</span>, <span class="st">'pip'</span>, <span class="st">'install'</span>, name])</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co">#install("stocksera")</span></span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> stocksera</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> stocksera.Client(api_key<span class="op">=</span><span class="st">"2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1"</span>)</span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> client.stocktwits(ticker<span class="op">=</span><span class="st">"AAPL"</span>)</span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>{'rank': 22, 'watchlist': 760696, 'date_updated': '2021-11-29 03:00'}</code></pre>
-</div>
-</div>
-<p>Dataset 4: (In Progress) Weekly Investor Sentiment from AAII</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AAII weekly survey data https://www.aaii.com/sentimentsurvey/sent_results</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># read in as csv </span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">#getwd()</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co">#aaWeekly &lt;- read.csv("./data/00-raw-data/sentiment_aaii.csv")</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">#head(aaWeekly)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Robintrack, robinhood</p>
+<p>import subprocess import sys</p>
+<p>def install(name): subprocess.call([sys.executable, ‘-m’, ‘pip’, ‘install’, name])</p>
+<p>#install(“stocksera”)</p>
+<p>import stocksera</p>
+<p>client = stocksera.Client(api_key=“2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1”)</p>
+<p>stw = client.stocktwits(ticker = “QQQ”) print(stw)</p>
+<p>sbrs = client.wsb_mentions(days=500, ticker=“QQQ”) print(sbrs) ``</p>
+<p>Dataset 4: (In Progress) Weekly Investor Sentiment from AAII `` {r} # AAII weekly survey data https://www.aaii.com/sentimentsurvey/sent_results # read in as csv</p>
+<p>#getwd() #aaWeekly &lt;- read.csv(“./data/00-raw-data/sentiment_aaii.csv”) #head(aaWeekly)</p>
+<p>``</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

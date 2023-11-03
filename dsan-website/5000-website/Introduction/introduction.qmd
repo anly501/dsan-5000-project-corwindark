@@ -25,4 +25,3 @@ In this project, I am seeking to investigate the following research questions:
 10. Do media datasets include signs that retail investor interest spawns news coverage?
 
 To address these questions, I will look at common measures of retail investor interest, including forum posts, social media messages and sentiment, and trading patterns for particular financial instruments.
-

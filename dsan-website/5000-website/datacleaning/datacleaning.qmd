@@ -1,6 +1,10 @@
 ---
 title: "Data Gathering"
 engine: knitr
+execute:
+    freeze: true
+project:
+  execute-dir: project
 ---
 
 
@@ -11,15 +15,25 @@ engine: knitr
 ``` {r}
 library(reticulate)
 
-
-
 ```
 
 
 
 <h2> Cleaning Reddit Text Corpus in Python </h2>
 
-``` {python}
+Most of my work on preparing the text data is on the Naive Bayes tab. Below I take the reddit data and 
+
+
+```{python}
+import os
+
+print
+os.getcwd()
+```
+
+
+I ran the following code to clean my data: 
+
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 import pandas as pd
@@ -29,9 +43,10 @@ import sys
 from nltk.stem import PorterStemmer
 
 
-subprocess.call([sys.executable, '-m', 'pip', 'install', 'nltk'])
+#subprocess.call([sys.executable, '-m', 'pip', 'install', 'nltk'])
 
 os.getcwd()
+
 redditTexts = pd.read_excel("./data/01-modified-data/sampleRedditText.xlsx", sheet_name="Sheet1")
 
 redditTexts.head()
@@ -44,7 +59,7 @@ stemmer = PorterStemmer()
 
 removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: x.split())
 
-df['stemmed'] = df['unstemmed'].apply(lambda x: [stemmer.stem(y) for y in x]) 
+#df['stemmed'] = df['unstemmed'].apply(lambda x: [stemmer.stem(y) for y in x]) 
 
 removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: [stemmer.stem(y) for y in x]) 
 
@@ -70,7 +85,6 @@ redditCV.head()
 redditCV.to_csv('./data/01-modified-data/vectorizedReddit.csv', index=False)
 #print(df)
 
-```
 
 
 ```{python}
@@ -79,8 +93,8 @@ redditCV.to_csv('./data/01-modified-data/vectorizedReddit.csv', index=False)
 #print("vocabulary = ",vectorizer.vocabulary_)   
 # STOP WORDS 
 #print("stop words =", vectorizer.stop_words)
-print("col_names=",col_names)
-print("CORPUS WIDE WORD COUNTS:",np.sum(Xs,axis=0))
+#print("col_names=",col_names)
+#print("CORPUS WIDE WORD COUNTS:",np.sum(Xs,axis=0))
 #print("WORDS PER DOCUMENT:\n",np.sum(Xs,axis=1))
 
 

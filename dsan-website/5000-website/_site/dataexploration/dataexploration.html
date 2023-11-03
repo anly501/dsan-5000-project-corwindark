@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Corwin Dark">
 
-<title>DSAN-5000: Project – dataexploration</title>
+<title>DSAN-5000: Project - Exploratory Data Analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -143,6 +144,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Data Exploration</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../naivebayes/naivebayes.html" rel="" target="">
+ <span class="menu-text">Naive Bayes</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../clustering/clustering.html" rel="" target="">
  <span class="menu-text">Clustering</span></a>
   </li>  
@@ -183,11 +188,354 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-
-
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"a"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Exploratory Data Analysis</h1>
 </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Corwin Dark </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<h2 class="anchored">
+EDA Overview
+</h2><h2 class="anchored">
+<p>At the broadest level, there is a temporal component to the research question that will shape how we conduct the analysis. Namely, the outcome variable is retail trading activity in stocks, as measured by daily holding data on the top 10 stocks sourced from NASDAQ’s API. As such, we are interested in data from the other datasets (reddit text information, investor sentiment survey, stocktwits ranking) as of one day before. I will merge the datasets in R, and then use R (ggplot) to create visuals and carry out EDA.</p>
+</h2><h2 class="anchored">
+Joining the Data
+</h2>
+<p>(Will be moved to data cleaning eventually)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>-- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>v ggplot2 3.3.5     v purrr   0.3.4
+v tibble  3.2.1     v dplyr   1.1.2
+v tidyr   1.2.0     v stringr 1.4.0
+v readr   2.1.2     v forcats 0.5.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>-- Conflicts ------------------------------------------ tidyverse_conflicts() --
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Quandl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: xts</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: zoo</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'zoo'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    as.Date, as.Date.numeric</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+######################### Warning from 'xts' package ##########################
+#                                                                             #
+# The dplyr lag() function breaks how base R's lag() function is supposed to  #
+# work, which breaks lag(my_xts). Calls to lag(my_xts) that you type or       #
+# source() into this session won't work correctly.                            #
+#                                                                             #
+# Use stats::lag() to make sure you're not using dplyr::lag(), or you can add #
+# conflictRules('dplyr', exclude = 'lag') to your .Rprofile to stop           #
+# dplyr from breaking base R's lag() function.                                #
+#                                                                             #
+# Code in packages is not affected. It's protected by R's namespace mechanism #
+# Set `options(xts.warn_dplyr_breaks_lag = FALSE)` to suppress this warning.  #
+#                                                                             #
+###############################################################################</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'xts'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    first, last</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'lubridate'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RedditExtractoR)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xlsx)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s join the data together into one dataset, with properly lagged predictor variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>redditIn <span class="ot">&lt;-</span> <span class="fu">read.xlsx</span>(<span class="st">"../data/01-modified-data/sampleRedditText.xlsx"</span>, <span class="at">sheetName =</span> <span class="st">"Sheet1"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>sentimentIn <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../data/00-raw-data/sentiment_aaii.csv"</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>rtatIn <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../data/01-modified-data/cleanRTAT.csv"</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure dates can be joined</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(sentimentIn)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">"date"</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>sentimentIn <span class="ot">&lt;-</span> sentimentIn <span class="sc">|&gt;</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">mdy</span>(date)) <span class="sc">|&gt;</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">week</span>(date)) <span class="sc">|&gt;</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">lagweek =</span> week <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">weekyear =</span> <span class="fu">paste</span>(<span class="fu">year</span>(date), lagweek )) <span class="sc">|&gt;</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Bullish =</span> <span class="fu">as.numeric</span>(<span class="fu">str_replace</span>(Bullish, <span class="st">"%"</span>, <span class="st">""</span>))<span class="sc">/</span><span class="dv">100</span> ) <span class="sc">|&gt;</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Neutral =</span> <span class="fu">as.numeric</span>(<span class="fu">str_replace</span>(Neutral, <span class="st">"%"</span>, <span class="st">""</span>))<span class="sc">/</span><span class="dv">100</span> ) <span class="sc">|&gt;</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Spread =</span> <span class="fu">as.numeric</span>(<span class="fu">str_replace</span>(Spread, <span class="st">"%"</span>, <span class="st">""</span>))<span class="sc">/</span><span class="dv">100</span> ) <span class="sc">|&gt;</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Bearish =</span> <span class="fu">as.numeric</span>(<span class="fu">str_replace</span>(Bearish, <span class="st">"%"</span>, <span class="st">""</span>))<span class="sc">/</span><span class="dv">100</span> ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There was 1 warning in `mutate()`.
+i In argument: `Bullish = as.numeric(str_replace(Bullish, "%", ""))/100`.
+Caused by warning:
+! NAs introduced by coercion</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There was 1 warning in `mutate()`.
+i In argument: `Neutral = as.numeric(str_replace(Neutral, "%", ""))/100`.
+Caused by warning:
+! NAs introduced by coercion</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There was 1 warning in `mutate()`.
+i In argument: `Bearish = as.numeric(str_replace(Bearish, "%", ""))/100`.
+Caused by warning:
+! NAs introduced by coercion</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>rtatIn <span class="ot">&lt;-</span> rtatIn <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">ymd</span>(date)) <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">week</span>(date)) <span class="sc">%&gt;%</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">weekyear =</span> <span class="fu">paste</span>(<span class="fu">year</span>(date), week))</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(rtatIn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     X       date ticker activity sentiment deltaActivity deltaSentiment
+1 9551 2020-01-02   TSLA   0.0226         0       -0.0014              0
+2 9552 2020-01-02    SPY   0.0147         3       -0.0341             -7
+3 9553 2020-01-02   ROKU   0.0119         0        0.0000              0
+4 9554 2020-01-02    QQQ   0.0093         6       -0.0111              1
+5 9555 2020-01-02   MSFT   0.0116         2       -0.0181              1
+6 9556 2020-01-02     FB   0.0093        -2       -0.0078             -2
+  newEntry week weekyear
+1    FALSE    1   2020 1
+2    FALSE    1   2020 1
+3     TRUE    1   2020 1
+4    FALSE    1   2020 1
+5    FALSE    1   2020 1
+6    FALSE    1   2020 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>joinedSentiment <span class="ot">&lt;-</span> <span class="fu">left_join</span>(rtatIn, sentimentIn, <span class="at">by =</span> <span class="st">"weekyear"</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(joinedSentiment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     X     date.x ticker activity sentiment deltaActivity deltaSentiment
+1 9551 2020-01-02   TSLA   0.0226         0       -0.0014              0
+2 9552 2020-01-02    SPY   0.0147         3       -0.0341             -7
+3 9553 2020-01-02   ROKU   0.0119         0        0.0000              0
+4 9554 2020-01-02    QQQ   0.0093         6       -0.0111              1
+5 9555 2020-01-02   MSFT   0.0116         2       -0.0181              1
+6 9556 2020-01-02     FB   0.0093        -2       -0.0078             -2
+  newEntry week.x weekyear date.y Bullish Neutral Bearish Total X8.week Spread
+1    FALSE      1   2020 1   &lt;NA&gt;      NA      NA      NA  &lt;NA&gt;    &lt;NA&gt;     NA
+2    FALSE      1   2020 1   &lt;NA&gt;      NA      NA      NA  &lt;NA&gt;    &lt;NA&gt;     NA
+3     TRUE      1   2020 1   &lt;NA&gt;      NA      NA      NA  &lt;NA&gt;    &lt;NA&gt;     NA
+4    FALSE      1   2020 1   &lt;NA&gt;      NA      NA      NA  &lt;NA&gt;    &lt;NA&gt;     NA
+5    FALSE      1   2020 1   &lt;NA&gt;      NA      NA      NA  &lt;NA&gt;    &lt;NA&gt;     NA
+6    FALSE      1   2020 1   &lt;NA&gt;      NA      NA      NA  &lt;NA&gt;    &lt;NA&gt;     NA
+  SPYHighWk SPYLowWK SPYCloseWK week.y lagweek
+1      &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;     NA      NA
+2      &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;     NA      NA
+3      &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;     NA      NA
+4      &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;     NA      NA
+5      &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;     NA      NA
+6      &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;     NA      NA</code></pre>
+</div>
+</div>
+<h2 class="anchored">
+Numeric Summaries
+</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(joinedSentiment<span class="sc">$</span>activity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.00760 0.01720 0.02460 0.03103 0.03590 0.26150 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(joinedSentiment<span class="sc">$</span>sentiment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-23.0000  -1.0000   1.0000   0.9117   3.0000  19.0000 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(joinedSentiment<span class="sc">$</span>deltaActivity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+-0.194000 -0.003700  0.002100  0.003997  0.011600  0.232000 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(joinedSentiment<span class="sc">$</span>deltaSentiment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-24.000  -3.000   0.000  -1.259   1.000  20.000 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(joinedSentiment<span class="sc">$</span>Bullish)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+ 0.1584  0.2483  0.3188  0.3262  0.3956  0.5691     290 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(joinedSentiment<span class="sc">$</span>Bearish)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+ 0.1976  0.2751  0.3805  0.3732  0.4490  0.6087     290 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(joinedSentiment<span class="sc">$</span>Neutral)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+ 0.1450  0.2715  0.3043  0.3005  0.3345  0.4091     290 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(joinedSentiment<span class="sc">$</span>Spread)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+-0.43100 -0.19200 -0.07500 -0.04695  0.11700  0.36500      290 </code></pre>
+</div>
+</div>
+<p>Barplots for discrete variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(joinedSentiment, <span class="fu">aes</span>(<span class="at">x =</span> newEntry)) <span class="sc">+</span> <span class="fu">geom_bar</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">"Current Stock is in Top 10"</span>, <span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">title =</span> <span class="st">"Distribution of New Stocks Amongst Top-10 Stocks by Retail Activity"</span>) <span class="sc">+</span> <span class="fu">theme_grey</span>(<span class="at">base_size =</span> <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="dataexploration_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">table</span>(joinedSentiment<span class="sc">$</span>ticker), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+AAPL TSLA  SPY  AMD  QQQ TQQQ NVDA AMZN SQQQ MSFT 
+ 956  956  926  876  760  694  665  531  408  389 </code></pre>
+</div>
+</div>
+<p>In addition to the porportion of new stocks in the top 10, the table shows up the top 10 stocks by number of days spent in the top-10 ranking of retail investor actvity. We can see that the distribution has a heavy right tail, as even amongst the top 10 stocks there is a large divergence, with the top stock (AAPL) having more than two times as many days in the top 10 as the 10th place stock (MSFT).</p>
+<h2 class="anchored">
+Outcome Variable Exploration
+</h2>
+<p>First, lets explore the outcome variable table, of the top 10 retail-investor held stocks each day. Each stock has an ‘activity’ number which measures the percent of traded shares held by retail investors. Let’s see how those scores are distributed:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(joinedSentiment, <span class="fu">aes</span>(<span class="at">x =</span> activity)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">'bin'</span>, <span class="at">binwidth =</span> <span class="fl">0.01</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">"Daily Retail Activity Score"</span>, <span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">title =</span> <span class="st">"Distribution of Daily Retail Activity Scores Amongst Top-10 Stocks"</span>) <span class="sc">+</span> <span class="fu">theme_grey</span>(<span class="at">base_size =</span> <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="dataexploration_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Activity scores seem to be skewed to the right, with a thin tail. I wonder which stocks compose the highest activity values. Let’s look at which of these scores were from stocks that had just appeared in the top 10 that day:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(joinedSentiment, <span class="fu">aes</span>(<span class="at">x =</span> activity, <span class="at">fill =</span> newEntry)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">'bin'</span>, <span class="at">binwidth =</span> <span class="fl">0.01</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">"Daily Retail Activity Score"</span>, <span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">title =</span> <span class="st">"Distribution of Daily Retail Activity Scores Amongst Top-10 Stocks"</span>, <span class="at">fill =</span> <span class="st">"New to Top 10"</span>) <span class="sc">+</span> <span class="fu">theme_grey</span>(<span class="at">base_size =</span> <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="dataexploration_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>From this chart, we can see that most of the high-activity scores are from stocks which previously entered the top 10. This makes sense, as we would expects stock to increase in activity over multiple days, before reaching the top of the list. Similar to songs on top music charts.</p>
+<p>My next question is how the outcome variable has changed over time. Let’s look at attention scores over time:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>joinedSentimentAvgs <span class="ot">&lt;-</span> joinedSentiment <span class="sc">%&gt;%</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(date.x) <span class="sc">%&gt;%</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">dailyactivitytotal =</span> <span class="fu">sum</span>(activity), <span class="at">dailyactivityavg =</span> <span class="fu">mean</span>(activity),</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">dailynewtickers =</span> <span class="fu">sum</span>(<span class="fu">as.numeric</span>(newEntry))) </span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(joinedSentimentAvgs, <span class="fu">aes</span>(<span class="at">x =</span> date.x, <span class="at">y =</span> dailyactivitytotal)) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">"Date"</span>, <span class="at">y =</span> <span class="st">"Total Retail Investor Activity"</span>, <span class="at">title =</span> <span class="st">"Total of Daily Retail Activity Scores Amongst Top-10 Stocks"</span>, <span class="at">fill =</span> <span class="st">"New to Top 10"</span>) <span class="sc">+</span> <span class="fu">theme_grey</span>(<span class="at">base_size =</span> <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="dataexploration_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This chart is interesting because it shows that our outcome variable has a clear upward trend over time. Retail investors appear to be a greater proportion of the total activity in the stock market today than they were in 2020.</p>
+<p>One last visual I wanted to create to evaluate the outcome variables was the number of new top-10 stocks that entered the list each week</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggbeeswarm)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(joinedSentimentAvgs, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.character</span>(<span class="fu">year</span>(date.x)), <span class="at">y =</span> dailynewtickers)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">"Year"</span>, <span class="at">y =</span> <span class="st">"New Stocks in the Top 10"</span>, <span class="at">title =</span> <span class="st">"Number of New Stocks in the Top 10 of Retail Activity by Year"</span>, <span class="at">fill =</span> <span class="st">"New to Top 10"</span>) <span class="sc">+</span> <span class="fu">theme_grey</span>(<span class="at">base_size =</span> <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="dataexploration_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Here we can see there is not a huge difference in the distributions of new stocks between the years, except for 2021, when there was a lot more days with at least 1 new stock in the top 10. But far and away, at least 50% of days have no new stocks in the top 10 of retail trader activity.</p>
+<h2 class="anchored">
+Bivariate Analysis
+</h2>
+<p>Now, lets look at some of the predictor variables in relation to the outcome variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"corrplot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>corrplot 0.92 loaded</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>noNAsentiment <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(joinedSentiment[,<span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">12</span>,<span class="dv">13</span>,<span class="dv">14</span>,<span class="dv">17</span>)])</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>save <span class="ot">&lt;-</span> <span class="fu">cor</span>(noNAsentiment)</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(save)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="dataexploration_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>save </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  activity    sentiment deltaActivity deltaSentiment
+activity        1.00000000 -0.068425337   0.620189979     0.06955678
+sentiment      -0.06842534  1.000000000   0.009215771     0.51408474
+deltaActivity   0.62018998  0.009215771   1.000000000    -0.04522242
+deltaSentiment  0.06955678  0.514084741  -0.045222415     1.00000000
+Bullish        -0.07234842  0.111433821  -0.095796815     0.10398764
+Neutral         0.04440169  0.019445339   0.038646679    -0.01661078
+Bearish         0.04285201 -0.111207408   0.067113719    -0.08588212
+Spread         -0.05902646  0.115454510  -0.083795941     0.09801129
+                   Bullish     Neutral     Bearish      Spread
+activity       -0.07234842  0.04440169  0.04285201 -0.05902646
+sentiment       0.11143382  0.01944534 -0.11120741  0.11545451
+deltaActivity  -0.09579681  0.03864668  0.06711372 -0.08379594
+deltaSentiment  0.10398764 -0.01661078 -0.08588212  0.09801129
+Bullish         1.00000000 -0.09615506 -0.85871354  0.96041621
+Neutral        -0.09615506  1.00000000 -0.42751147  0.18492522
+Bearish        -0.85871354 -0.42751147  1.00000000 -0.96747469
+Spread          0.96041621  0.18492522 -0.96747469  1.00000000</code></pre>
+</div>
+</div>
+<p>The correlations between weekly investor sentiment polling and investor activity in the following week are displayed in the plot. While many crosstabs are highly correlated, these are only because the variables have been calculated together (i.e.&nbsp;the sentiment polling includes % with positive sentiment and % with negative sentiment, which are perfectly correlated since they are two sides of the same measure). The highest correlation value recorded outside these collinear predictors was ~0.115 for the spread in bullish and bearish opinion vs.&nbsp;sentiment towards top10 stocks.</p>
+<p>This correlation makes sense, because both measures are capturing the same underlying phenomena: investor sentiment. If retail investor sentiment is bearish about the market in general, then it would likely also be negative about particular stocks.</p>
+<h2 class="anchored">
+Outliers and Segmentation
+</h2>
+<p>We already saw in the overtime chart that perhaps 2021 was a different type of year than the other 3, as it had a high percentage of days with new stocks in the top 10.</p>
+<p>Lets look at the key outcome variables and see if any values violate Tukey’s rule</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(joinedSentiment<span class="sc">$</span>activity)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>cutoff <span class="ot">&lt;-</span> <span class="fu">mean</span>(joinedSentiment<span class="sc">$</span>activity) <span class="sc">+</span> (<span class="fl">1.5</span> <span class="sc">*</span> <span class="fu">IQR</span>(joinedSentiment<span class="sc">$</span>activity))</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> cutoff, <span class="at">col =</span> <span class="st">"Red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="dataexploration_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>With the red line above denoting the 1.5*IQR + mean threshold, we can see that many values lie above this line, but they do not appear to be separated from the main distribution. Rather, it looks like the main distribution has a fat right tail. Perhaps it would be well approximated by a Student’s distribution.</p>
+<h2 class="anchored">
+Hypothesis Testing
+</h2>
 
 
 

@@ -24,9 +24,9 @@ library(xlsx)
 
 Let's join the data together into one dataset, with properly lagged predictor variables.
 ```{r}
-redditIn <- read.xlsx("./data/01-modified-data/sampleRedditText.xlsx", sheetName = "Sheet1")
-sentimentIn <- read.csv("./data/00-raw-data/sentiment_aaii.csv")
-rtatIn <- read.csv("./data/01-modified-data/cleanRTAT.csv")
+redditIn <- read.xlsx("../data/01-modified-data/sampleRedditText.xlsx", sheetName = "Sheet1")
+sentimentIn <- read.csv("../data/00-raw-data/sentiment_aaii.csv")
+rtatIn <- read.csv("../data/01-modified-data/cleanRTAT.csv")
 
 
 # Ensure dates can be joined
@@ -90,7 +90,6 @@ In addition to the porportion of new stocks in the top 10, the table shows up th
 First, lets explore the outcome variable table, of the top 10 retail-investor held stocks each day. Each stock has an 'activity' number which measures the percent of traded shares held by retail investors. Let's see how those scores are distributed:
 
 ```{r}
-#| echo = false
 
 ggplot(joinedSentiment, aes(x = activity)) + geom_bar(stat = 'bin', binwidth = 0.01) + labs(x= "Daily Retail Activity Score", y = "Count", title = "Distribution of Daily Retail Activity Scores Amongst Top-10 Stocks") + theme_grey(base_size = 20)
 
