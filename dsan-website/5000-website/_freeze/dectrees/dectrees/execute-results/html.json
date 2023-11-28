@@ -1,0 +1,14 @@
+{
+  "hash": "f04338d4bd3e6cabc541ba52fc629dcf",
+  "result": {
+    "markdown": "---\ntitle: \"dectrees\"\nengine: knitr\nexecute:\n    freeze: true\n---\n\n\n\n<h1> Methods </h1>\n\n\n\n<h1> Class Distribution </h1>\n\n\n\n::: {.cell}\n\n```{.python .cell-code}\n# Code to compute the class distribution\n\n```\n:::\n\n\n\n<h1> Baseline Model / Random Classifier </h1>\n\n\n::: {.cell}\n\n```{.python .cell-code}\n\n# Random classifier code\n```\n:::\n\n\n<h1> Model Implementation </h1>\n\n\n<h1> Hyperparameter Tuning </h1>\n\n\n<h1> Final Results </h1>\n\n\n<h1> Conclusions </h1>\n\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

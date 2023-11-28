@@ -175,6 +175,34 @@ abline(h = cutoff, col = "Red")
 With the red line above denoting the 1.5*IQR + mean threshold, we can see that many values lie above this line, but they do not appear to be separated from the main distribution. Rather, it looks like the main distribution has a fat right tail. Perhaps it would be well approximated by a Student's distribution.
 
 
+Make wordcloud:
+```{r}
+install.packages("tm")
+library(tm)
+library(wordcloud)
+#Create a vector containing only the text
+text <- read.xlsx("./data/01-modified-data/sampleRedditText.xlsx", sheetName = "Sheet1")
+text <- text$text
+
+# Create a corpus  
+docs <- Corpus(VectorSource(text))
+docs <- docs %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace)
+docs <- tm_map(docs, content_transformer(tolower))
+docs <- tm_map(docs, removeWords, stopwords("english"))
+
+
+dtm <- TermDocumentMatrix(docs) 
+matrix <- as.matrix(dtm) 
+words <- sort(rowSums(matrix),decreasing=TRUE) 
+df <- data.frame(word = names(words),freq=words)
+
+set.seed(1234) # for reproducibility 
+wordcloud(words = df$word, freq = df$freq, min.freq = 1,           max.words=200, random.order=FALSE, rot.per=0.35,            colors=brewer.pal(8, "Dark2"))
+```
+
 <h2> Hypothesis Testing </h2>
 
 

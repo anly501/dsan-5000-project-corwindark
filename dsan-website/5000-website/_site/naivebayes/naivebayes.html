@@ -205,7 +205,7 @@ Prep Data for Naive Bayes
 </h2>
 <p>We are splitting the data into training, validation, and test sets to ensure we optimally fit the model and avoid over or under fitting. In particular, we can use the validation set to tune our model and improve its generalizability, and then use the test set to evaluate the performance of our model. I will do a 70-15-15 split between the train, evaluation, and test data, and this is done simply by randomly splitting the dataset.</p>
 <p>For the text data: I will prepare the corpus in a few steps. 1. I have already used a stemmer to reduce the number of unique words by about 7,000. After this reduction we still have 50,000 words. 2. I will filter out words with &lt;5 total uses in the corpus. 3. Then, I will join my binary outcome variable with the reddit text data according to the date of each post. The outcomes will be lagged by 1 day, as we want to ensure that the reddit mentions preceeded the change in a stock’s trading activity. As an example of how this will work: the outcome variable for a post that mentioned ticker QQQ on 12/1 would be 1 or 0 depending on whether QQQ increased or decreased in activity on 12/2.</p>
-<div class="cell" data-execution_count="30">
+<div class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> csv</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -228,31 +228,7 @@ Prep Data for Naive Bayes
 9557    False
 9558    False
 9559    False
-Name: deltaActivity, Length: 9560, dtype: bool
-   Unnamed: 0     X      date.x ticker  activity  sentiment  deltaActivity  \
-0           1  9551  2020-01-02   TSLA    0.0226          0        -0.0014   
-1           2  9552  2020-01-02    SPY    0.0147          3        -0.0341   
-2           3  9553  2020-01-02   ROKU    0.0119          0         0.0000   
-3           4  9554  2020-01-02    QQQ    0.0093          6        -0.0111   
-4           5  9555  2020-01-02   MSFT    0.0116          2        -0.0181   
-
-   deltaSentiment  newEntry  week.x  ... Neutral Bearish  Total  X8.week  \
-0               0     False       1  ...     NaN     NaN    NaN      NaN   
-1              -7     False       1  ...     NaN     NaN    NaN      NaN   
-2               0      True       1  ...     NaN     NaN    NaN      NaN   
-3               1     False       1  ...     NaN     NaN    NaN      NaN   
-4               1     False       1  ...     NaN     NaN    NaN      NaN   
-
-   Spread SPYHighWk SPYLowWK  SPYCloseWK week.y lagweek  
-0     NaN       NaN      NaN         NaN    NaN     NaN  
-1     NaN       NaN      NaN         NaN    NaN     NaN  
-2     NaN       NaN      NaN         NaN    NaN     NaN  
-3     NaN       NaN      NaN         NaN    NaN     NaN  
-4     NaN       NaN      NaN         NaN    NaN     NaN  
-
-[5 rows x 23 columns]
-(9560, 23)
-(9560, 23)</code></pre>
+Name: deltaActivity, Length: 9560, dtype: bool</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="2">
@@ -265,7 +241,7 @@ Name: deltaActivity, Length: 9560, dtype: bool
 <pre><code>(7436, 49692)</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="8">
+<div class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check columns are sorted by occurence</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(textsIn.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>))</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -290,12 +266,6 @@ comments                                            1065358.0
 ïyou                                                        1
 üü                                                          1
 Length: 49692, dtype: object
-Index(['date_utc', 'title', 'ticker', 'comments', '00', '000', '00000',
-       '000000000', '000001', '0000050863',
-       ...
-       'zyne', 'zynerba', 'zynex', 'zynga', 'zypot4g', 'zyq8gpy', 'zyxi',
-       'zzhq7gy', 'zzpcoa9', 'zzqa2sj'],
-      dtype='object', length=35405)
      date_utc                                              title ticker  \
 0  2020-07-30                               Sample ETF portfolio    QQQ   
 1  2020-09-15             Psycho Market Recap - Tue Sept 15 2020    QQQ   
@@ -320,7 +290,7 @@ Index(['date_utc', 'title', 'ticker', 'comments', '00', '000', '00000',
 [5 rows x 35405 columns]</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="47">
+<div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How big a change was removing single-use words?</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>textsIn.shape</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># After removing words only used once,  we have 35k words</span></span>
@@ -378,65 +348,25 @@ Index(['date_utc', 'title', 'ticker', 'comments', '00', '000', '00000',
 9558     NaN       NaN      NaN         NaN    NaN     NaN  
 9559     NaN       NaN      NaN         NaN    NaN     NaN  
 
-[9560 rows x 23 columns]&gt;
-&lt;bound method NDFrame.head of       Unnamed: 0     X      date.x ticker  activity  sentiment  deltaActivity  \
-0              1  9551  2020-01-02   TSLA    0.0226          0        -0.0014   
-1              2  9552  2020-01-02    SPY    0.0147          3        -0.0341   
-2              3  9553  2020-01-02   ROKU    0.0119          0         0.0000   
-3              4  9554  2020-01-02    QQQ    0.0093          6        -0.0111   
-4              5  9555  2020-01-02   MSFT    0.0116          2        -0.0181   
-...          ...   ...         ...    ...       ...        ...            ...   
-9555        9556     6  2023-10-18   NVDA    0.0695          2         0.0428   
-9556        9557     7  2023-10-18   META    0.0124          1        -0.0064   
-9557        9558     8  2023-10-18   AMZN    0.0185          6        -0.0016   
-9558        9559     9  2023-10-18    AMD    0.0264          2         0.0025   
-9559        9560    10  2023-10-18   AAPL    0.0255          5        -0.0204   
-
-      deltaSentiment  newEntry  week.x  ... Neutral Bearish  Total  X8.week  \
-0                  0     False       1  ...     NaN     NaN    NaN      NaN   
-1                 -7     False       1  ...     NaN     NaN    NaN      NaN   
-2                  0      True       1  ...     NaN     NaN    NaN      NaN   
-3                  1     False       1  ...     NaN     NaN    NaN      NaN   
-4                  1     False       1  ...     NaN     NaN    NaN      NaN   
-...              ...       ...     ...  ...     ...     ...    ...      ...   
-9555               0     False      42  ...     NaN     NaN    NaN      NaN   
-9556               2     False      42  ...     NaN     NaN    NaN      NaN   
-9557               4     False      42  ...     NaN     NaN    NaN      NaN   
-9558              -1     False      42  ...     NaN     NaN    NaN      NaN   
-9559               6     False      42  ...     NaN     NaN    NaN      NaN   
-
-      Spread SPYHighWk SPYLowWK  SPYCloseWK week.y lagweek  
-0        NaN       NaN      NaN         NaN    NaN     NaN  
-1        NaN       NaN      NaN         NaN    NaN     NaN  
-2        NaN       NaN      NaN         NaN    NaN     NaN  
-3        NaN       NaN      NaN         NaN    NaN     NaN  
-4        NaN       NaN      NaN         NaN    NaN     NaN  
-...      ...       ...      ...         ...    ...     ...  
-9555     NaN       NaN      NaN         NaN    NaN     NaN  
-9556     NaN       NaN      NaN         NaN    NaN     NaN  
-9557     NaN       NaN      NaN         NaN    NaN     NaN  
-9558     NaN       NaN      NaN         NaN    NaN     NaN  
-9559     NaN       NaN      NaN         NaN    NaN     NaN  
-
 [9560 rows x 23 columns]&gt;</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="97">
+<div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we subtracted one day, let's add the categorical label variable we are trying to predict and then split the data</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'activityIncrease'</span>] <span class="op">=</span> dataIn[<span class="st">'deltaActivity'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">int</span>(x <span class="op">&gt;</span> <span class="dv">0</span>) )</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Change percent signs to decimals</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'Bearish'</span>] <span class="op">=</span> dataIn[<span class="st">'Bearish'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.rstrip(<span class="st">"%"</span>).astype(<span class="bu">float</span>)<span class="op">/</span><span class="dv">100</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'Bullish'</span>] <span class="op">=</span> dataIn[<span class="st">'Bullish'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.rstrip(<span class="st">"%"</span>).astype(<span class="bu">float</span>)<span class="op">/</span><span class="dv">100</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'Neutral'</span>] <span class="op">=</span> dataIn[<span class="st">'Neutral'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.rstrip(<span class="st">"%"</span>).astype(<span class="bu">float</span>)<span class="op">/</span><span class="dv">100</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'Spread'</span>] <span class="op">=</span> dataIn[<span class="st">'Spread'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.rstrip(<span class="st">"%"</span>).astype(<span class="bu">float</span>)<span class="op">/</span><span class="dv">100</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#dataIn['Bearish'] = dataIn['Bearish'].apply(lambda x: x.rstrip("%").astype(float)/100)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#dataIn['Bullish'] = dataIn['Bullish'].apply(lambda x: x.rstrip("%").astype(float)/100)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#dataIn['Neutral'] = dataIn['Neutral'].apply(lambda x: x.rstrip("%").astype(float)/100)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#dataIn['Spread'] = dataIn['Spread'].apply(lambda x: x.rstrip("%").astype(float)/100)</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
 <pre><code>AttributeError: 'float' object has no attribute 'rstrip'</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="100">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now that we subtracted one day in the cell above, let's merge the text corpus with the daily activity label</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>textsIn <span class="op">=</span> pd.DataFrame(textsIn)</span>

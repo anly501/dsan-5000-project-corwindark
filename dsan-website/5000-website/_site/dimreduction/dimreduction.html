@@ -189,9 +189,216 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"a"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<h1>
+Dimensionality Reduction: Introduction
+</h1>
+<h2 class="anchored">
+Project Proposal
+</h2>
+<p>The objective of this project is to reduce the tabular data’s dimensionality, breaking down the range of disparate values into vectors which combine the meaninfgul signal contained in the data sources I have aggregated. This can enable faster processing of the data in other analyses such as decision trees or regression models, and it will also enable better performance by excluding noise from the data where possible. In terms of tools: I will use Python’s scikit learn and its sub-package scikit learn.metrics, particularly the PCA and tSNE methods, to analyze the data and attempt dimensionality reduction.</p>
+<p>The record dataset I will be analyzing for dimensionality reduction includes: 1 - The daily level of retail activity for the top 10 most active stock tickers, 2 - The daily change in the level of retail activity for the top 10 most active stock tickers, 3 - Weekly individual investor survey data (columns for the percent of respondents that were bearish, bullish, or neutral), 4 - Weekly change in major stock indices prices, 4 - weekly stocktwits rankings of the most active stock tickers.</p>
+<p>The dataset described above was selected by using all of the available record data that I gathered for this project. This is because data pertaining to retail investor sentiment and trading is exceptionally scarce online, and so it makes sense to use all available data for topics such as dimensionality reduction. Text data was not used due to its fundamental differences from the record data, and computational requirements given the 10,000 columns.</p>
+<h1>
+Code Implementation:
+</h1>
+<div class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> silhouette_samples, silhouette_score</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>os.getcwd()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="30">
+<pre><code>'c:\\Users\\corwi\\Documents\\dsan-5000-project-corwindark\\dsan-website\\5000-website\\dimreduction'</code></pre>
 </div>
+</div>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read data in:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>tabData <span class="op">=</span> pd.read_csv(<span class="st">"../data/01-modified-data/joinedSentiment.csv"</span>) </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>tabData.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>(9560, 23)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="50">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prep data for PCA and T-SME</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>nonNumericColumns <span class="op">=</span> [<span class="st">'X'</span>, <span class="st">"Unnamed: 0"</span>, <span class="st">'week.y'</span>, <span class="st">'lagweek'</span>, <span class="st">'sentiment'</span>,  <span class="st">'date.x'</span>, <span class="st">'Total'</span>, <span class="st">'X8.week'</span>, <span class="st">'date.x'</span>, <span class="st">'ticker'</span>, <span class="st">'date.y'</span>, <span class="st">'deltaSentiment'</span>,  <span class="st">'week.x'</span>, <span class="st">'weekyear'</span>, <span class="st">'newEntry'</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> tabData.drop(columns <span class="op">=</span> nonNumericColumns)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> x.dropna()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>xsave <span class="op">=</span> x</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> x.drop(columns <span class="op">=</span> [<span class="st">'deltaActivity'</span>])</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>x.SPYCloseWK <span class="op">=</span> x.SPYCloseWK.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">float</span>(x.replace(<span class="st">","</span>, <span class="st">""</span>) ))</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>x.SPYHighWk <span class="op">=</span> x.SPYHighWk.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">float</span>(x.replace(<span class="st">","</span>, <span class="st">""</span>) ))</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>x.SPYLowWK <span class="op">=</span> x.SPYLowWK.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">float</span>(x.replace(<span class="st">","</span>, <span class="st">""</span>) ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Implement PCA</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> PCA</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA(n_components<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>pca.fit(x)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'</span><span class="ch">\n</span><span class="st">PCA'</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pca.components_)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pca.explained_variance_ratio_ <span class="op">*</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+PCA
+[[-1.68248660e-06 -9.38301381e-06 -2.92182977e-05  3.85961909e-05
+  -4.79948736e-05 -5.59590301e-01 -5.97065315e-01 -5.74779697e-01]
+ [ 1.02733629e-05 -6.50141479e-04 -2.83986205e-04  9.34058655e-04
+  -1.58436440e-03  7.83508069e-01 -6.07178267e-01 -1.32082442e-01]
+ [-3.33404703e-06 -4.95640335e-05 -6.83867804e-05  1.18117062e-04
+  -1.67786032e-04 -2.70132741e-01 -5.24257322e-01  8.07578178e-01]]
+[99.45726907  0.34201376  0.20071211]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Given that the first component explains so much of the variance, let's do PCA with only 2 components</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA(n_components<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>pca.fit(x)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'</span><span class="ch">\n</span><span class="st">PCA'</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pca.components_)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>xpca <span class="op">=</span> pca.fit_transform(x)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pca.explained_variance_ratio_ <span class="op">*</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+PCA
+[[-1.68248660e-06 -9.38301381e-06 -2.92182977e-05  3.85961909e-05
+  -4.79948736e-05 -5.59590301e-01 -5.97065315e-01 -5.74779697e-01]
+ [ 1.02733629e-05 -6.50141479e-04 -2.83986205e-04  9.34058655e-04
+  -1.58436440e-03  7.83508069e-01 -6.07178267e-01 -1.32082442e-01]]
+[99.45726907  0.34201376]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Implement TSNE</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#xt = x.drop_duplicates()</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">21</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>X_tsne <span class="op">=</span> tsne.fit_transform(x)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>tsne.kl_divergence_</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="46">
+<pre><code>-4.008790016174316</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameter tuning for TSNE</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>kl_divergences <span class="op">=</span>  []  </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># first val is perplexity, second is KL divergence</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">10</span>):</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(i)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, perplexity<span class="op">=</span> i, random_state<span class="op">=</span><span class="dv">21</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    X_tsne <span class="op">=</span> tsne.fit_transform(x)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    kl <span class="op">=</span> tsne.kl_divergence_</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    kl_divergences.append([ [i], [kl] ])</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(kl_divergences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1
+2
+3
+4
+5
+6
+7
+8
+9
+[[[1], [-0.40658706426620483]], [[2], [-0.4820026159286499]], [[3], [-0.505386471748352]], [[4], [-0.7875299453735352]], [[5], [-0.9650571346282959]], [[6], [-1.0686755180358887]], [[7], [-1.1880613565444946]], [[8], [-1.2203705310821533]], [[9], [-1.407416820526123]]]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>kls <span class="op">=</span> pd.DataFrame(kl_divergences)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#print(kls.shape)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>kls.columns <span class="op">=</span> [<span class="st">'Perplexity'</span>, <span class="st">'KL_Divergence'</span>]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#print(kls.head())</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>kls.Perplexity <span class="op">=</span> kls.Perplexity.<span class="bu">apply</span>(<span class="kw">lambda</span> x: x[<span class="dv">0</span>])</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>kls.KL_Divergence <span class="op">=</span> kls.KL_Divergence.<span class="bu">apply</span>(<span class="kw">lambda</span> x: x[<span class="dv">0</span>])</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#print(kls.head())</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#kls = pd.DataFrame(kl_divergences, columns = ['Perplexity', 'KL_Divergence']) </span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>sns.lineplot(kls, x <span class="op">=</span> <span class="st">'Perplexity'</span>, y <span class="op">=</span> <span class="st">'KL_Divergence'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(9, 2)
+  Perplexity           KL_Divergence
+0        [1]  [-0.40658706426620483]
+1        [2]   [-0.4820026159286499]
+2        [3]    [-0.505386471748352]
+3        [4]   [-0.7875299453735352]
+4        [5]   [-0.9650571346282959]
+   Perplexity  KL_Divergence
+0           1      -0.406587
+1           2      -0.482003
+2           3      -0.505386
+3           4      -0.787530
+4           5      -0.965057</code></pre>
+</div>
+<div class="cell-output cell-output-error">
+<pre><code>AttributeError: 'numpy.ndarray' object has no attribute 'kl_divergence_'</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dimreduction_files/figure-html/cell-9-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<p>From looking at the plot of perplexity versus KL divergence, it appears that the lower values of perplexity performed better and yielded a KL divergence closer to 0. As such, I would use perplexity = 1 for this model.</p>
+<h1>
+Project Report
+</h1>
+<p>Let’s start with the results of the principle component analysis:</p>
+<div class="cell" data-execution_count="74">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>increaseActivity <span class="op">=</span> (xsave[<span class="st">'deltaActivity'</span>] <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>increaseActivity.head()</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#plt.hist(xpca[:,0], hue=increaseActivity)</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#plt.show()</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>plt.hist(xpca[increaseActivity,<span class="dv">0</span>],  </span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>         alpha<span class="op">=</span><span class="fl">0.5</span>, <span class="co"># the transaparency parameter </span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>         label<span class="op">=</span><span class="st">'Increased Activity'</span>) </span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>plt.hist(xpca[<span class="op">~</span>(increaseActivity),<span class="dv">0</span>],  </span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>         alpha<span class="op">=</span><span class="fl">0.5</span>, <span class="co"># the transaparency parameter </span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>         label<span class="op">=</span><span class="st">'Decreased Activity'</span>) </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Distribution of Increased/Decreased Activity Across the First Component"</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>plt.hist(xpca[increaseActivity,<span class="dv">1</span>],  </span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>         alpha<span class="op">=</span><span class="fl">0.5</span>, <span class="co"># the transaparency parameter </span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>         label<span class="op">=</span><span class="st">'Increased Activity'</span>) </span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>plt.hist(xpca[<span class="op">~</span>(increaseActivity),<span class="dv">1</span>],  </span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>         alpha<span class="op">=</span><span class="fl">0.5</span>, <span class="co"># the transaparency parameter </span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>         label<span class="op">=</span><span class="st">'Decreased Activity'</span>) </span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Distribution of Increased/Decreased Activity Across the Second Component"</span>)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="dimreduction_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dimreduction_files/figure-html/cell-10-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>As seen above, the PCA method does not produce principle components which are very good at splitting our data into the classes we care about. However, there is a noticeable difference between the classes in the first principle component especially, where higher values had more decreases in activity, and lower values had less. This should be enough on its own to outperform a simple random classifier, so it is not entirely a waste.</p>
 
 
 
