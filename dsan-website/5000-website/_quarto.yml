@@ -21,11 +21,11 @@ website:
         text: Data Exploration
       - href: naivebayes/naivebayes.ipynb
         text: Naive Bayes
-      - href: clustering/clustering.qmd
+      - href: clustering/clustering.ipynb
         text: Clustering
       - href: dimreduction/dimreduction.ipynb
         text: Dimensionality Reduction
-      - href: dectrees/dectrees.ipynb
+      - href: dectrees/dectrees.qmd
         text: Decision Trees
       - href: arm/arm.ipynb
         text: ARM
