@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>DSAN-5000: Project - dectrees</title>
+<title>DSAN-5000: Project - Decision Trees</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -93,6 +93,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -207,31 +210,382 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>
 Methods
 </h1>
+<p>Random and boosted forests are some of the most pervasive machine learning methods today. For tabular data, these methods are extremely effective at identifying nonlinear relationships, as well as identifying which features in the input space are most important. I hope to use the excellent results promised by these methods to achieve real predictive power on my outcome variables (the direction and amount that retail activity changes on a given stock in a given day). To do this, I will try and predict these outcome variables using all of my tabular predictors. I have tabular data for all observations, but only some have complete data, and based on the selectiveness of the different models the number of viable observations range from ~8,000 to just 2000 in the dataset. For each of these models I will attempt to correctly classify which stocks increased or decreased in activity, which is the outcome variable/</p>
+<p>I will start by creating a single decision tree as a baseline, and I will determine what accuracy this tree is able to achieve in classifying increases and decreases in activity. I will also fit a random classifier, so that I can compare my later models to a purely random result. After I have run this baseline both with and without the text data, I will run a random forest model. Based on the performance of this model, I will also try a boosted model, and then I will pick one of the two for which to optimize hyperparamters to get the best result.</p>
+<p>Decision trees can work for problems like mine because they are exceptionally good at identifying nonlinear relationships in data. To understand how they work, imagine you are deciding between 20 new car models to buy. A decision tree is similar to how a human being might approach such a choice. In finding the best car to purchase, you might set a standard or threshold such as: “less than x amount of dollars to purchase.” This would eliminate some number of the cars. Then you would further ask for features such as “all wheel drive,” or “seatwarmers,” until eventually you had a car which was the closest to your true requirements. Decision trees are essentially a similar method as this anecdote, except they attempt to find the most efficient number of requirements you could specify to match a car to a given person (classification) or it’s most ideal pricepoint(regression). In mathematical terms, they try to reduce the entropy of the dataset by dividing it along meaningful and efficient boundaries (called nodes that divide the data into branches), until only small distinct groups are left (called leaves).</p>
 <h1>
 Class Distribution
 </h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code to compute the class distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Read in and clean data:</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> silhouette_samples, silhouette_score</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>tabData <span class="op">=</span> pd.read_csv(<span class="st">"../data/01-modified-data/joinedSentiment.csv"</span>) </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>tabData.shape</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>textData <span class="op">=</span> pd.read_csv(<span class="st">"../data/01-modified-data/vectorizedReddit.csv"</span>) </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>tabData.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>(9560, 23)</code></pre>
 </div>
+</div>
+<p>More cleaning code to create the datasets.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>textsIn <span class="op">=</span> textData</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>dataIn <span class="op">=</span> tabData</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> textsIn.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>textsIn<span class="op">=</span>textsIn[ s.index[s <span class="op">!=</span> <span class="dv">1</span>]   ]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>textsIn.shape</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime, timedelta</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'date.x'</span>] <span class="op">=</span> dataIn[<span class="st">'date.x'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: datetime.strptime(x, <span class="st">'%Y-%m-</span><span class="sc">%d</span><span class="st">'</span>).date())</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>dataIn[<span class="st">'date.x'</span>] <span class="op">=</span> dataIn[<span class="st">'date.x'</span>] <span class="op">-</span> timedelta(days <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>dataIn.SPYCloseWK <span class="op">=</span> dataIn.SPYCloseWK.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">float</span>(<span class="bu">str</span>(x).replace(<span class="st">","</span>, <span class="st">""</span>) ))</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>dataIn.SPYHighWk <span class="op">=</span> dataIn.SPYHighWk.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">float</span>(<span class="bu">str</span>(x).replace(<span class="st">","</span>, <span class="st">""</span>) ))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>dataIn.SPYLowWK <span class="op">=</span> dataIn.SPYLowWK.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">float</span>(<span class="bu">str</span>(x).replace(<span class="st">","</span>, <span class="st">""</span>) ))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Join</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>textsIn <span class="op">=</span> pd.DataFrame(textsIn)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>textsIn[<span class="st">'date_utc'</span>] <span class="op">=</span> textsIn[<span class="st">'date_utc'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: datetime.strptime(x, <span class="st">'%Y-%m-</span><span class="sc">%d</span><span class="st">'</span>).date())</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>processed <span class="op">=</span> pd.merge(dataIn, textsIn, how <span class="op">=</span> <span class="st">'left'</span>, left_on <span class="op">=</span> [<span class="st">'date.x'</span>, <span class="st">'ticker'</span>], right_on <span class="op">=</span> [<span class="st">'date_utc'</span>, <span class="st">'ticker'</span>] )</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>processed[<span class="st">'activityIncrease'</span>] <span class="op">=</span> processed[<span class="st">'deltaActivity'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">int</span>(x <span class="op">&gt;</span> <span class="dv">0</span>) )</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>processed2 <span class="op">=</span> processed.dropna(subset<span class="op">=</span>[<span class="st">'date_utc'</span>])</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(processed2.shape)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>exclude <span class="op">=</span> [<span class="st">'lagweek'</span>,<span class="st">'date_utc'</span>,<span class="st">'title'</span>, <span class="st">'Unnamed: 0'</span>, <span class="st">'X'</span>, <span class="st">'date.x'</span>, <span class="st">'X8.week'</span>, <span class="st">'Total'</span>, <span class="st">'week.y'</span>, <span class="st">'date.y'</span>, <span class="st">'deltaActivity'</span>, <span class="st">'weekyear'</span>, <span class="st">'ticker'</span>, <span class="st">'activity_x'</span>, <span class="st">'sentiment_x'</span>, <span class="st">'deltaSentiment'</span>, <span class="st">'newEntry'</span>, <span class="st">'week.x'</span>]</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>processed3 <span class="op">=</span> processed2.drop(columns <span class="op">=</span> exclude, axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>processed3.head()</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> processed3.drop(<span class="st">'activityIncrease'</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> processed3[<span class="st">'activityIncrease'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(2018, 35428)</code></pre>
+</div>
+</div>
+<p>Class distribution for full (8,000) and reduced (2,000) datasets.</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code to compute the class distribution</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>xlocs <span class="op">=</span> [<span class="dv">0</span>,<span class="dv">1</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>xlabs <span class="op">=</span> [<span class="st">"Decreased"</span>, <span class="st">"Increased or Stayed the Same"</span>]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>temp <span class="op">=</span> processed2.loc[:,<span class="st">'activityIncrease'</span>].astype(<span class="bu">str</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>temp2 <span class="op">=</span> processed.loc[:,<span class="st">'activityIncrease'</span>].astype(<span class="bu">str</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>values, bins, bars <span class="op">=</span> plt.hist(temp, edgecolor<span class="op">=</span><span class="st">'white'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>plt.xticks(xlocs, xlabs)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>plt.bar_label(bars, fontsize<span class="op">=</span><span class="dv">20</span>, color<span class="op">=</span><span class="st">'navy'</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Class Distribution for Tickers with Reddit Posts "</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>values, bins, bars <span class="op">=</span> plt.hist(temp2, edgecolor<span class="op">=</span><span class="st">'white'</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>plt.xticks(xlocs, xlabs)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>plt.bar_label(bars, fontsize<span class="op">=</span><span class="dv">20</span>, color<span class="op">=</span><span class="st">'navy'</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Class Distribution for all Tickers in Dataset"</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-4-output-1.png" width="660" height="431"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-4-output-2.png" width="660" height="431"></p>
+</div>
+</div>
+<p>Based on the plots, we can see that 827 stocks in the daily top 10 decreased in retail trader activity, while 1191 increased, for the data which had relevant reddit posts available. As a proportion, this is 0.41 of all the stocks in the top 10 with reddit posts. In the second plots, for all the tickers in the dataset, 4373 had a decrease, while 5648 had an increase. As a proportion, this is 0.44 out of all stocks in the top 10. It is worth noting that the outcome variable differs in proportion between the categories.</p>
 <h1>
 Baseline Model / Random Classifier
 </h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Random classifier code</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now, let’s train a random classifier and a baseline decision tree on our two datasets, and visualize the tree that we construct. Starting with the random classifier:</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn <span class="im">import</span> metrics</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> random</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>ally <span class="op">=</span> temp2.astype(<span class="bu">int</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>texty <span class="op">=</span> temp.astype(<span class="bu">int</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>rand_ally <span class="op">=</span> random.randint(<span class="dv">2</span>, size <span class="op">=</span> ally.shape[<span class="dv">0</span>])</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>rand_texty <span class="op">=</span> random.randint(<span class="dv">2</span>, size <span class="op">=</span> texty.shape[<span class="dv">0</span>])</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="op">=</span> metrics.confusion_matrix(ally, rand_ally)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>cm_display <span class="op">=</span> metrics.ConfusionMatrixDisplay(confusion_matrix <span class="op">=</span> confusion_matrix, display_labels <span class="op">=</span> [<span class="va">False</span>, <span class="va">True</span>])</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>cm_display.plot()</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Confusion Matrix for Random Classifier, Text and Tabular Data "</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(accuracy_score(ally, rand_ally))</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="op">=</span> metrics.confusion_matrix(texty, rand_texty)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>cm_display <span class="op">=</span> metrics.ConfusionMatrixDisplay(confusion_matrix <span class="op">=</span> confusion_matrix, display_labels <span class="op">=</span> [<span class="va">False</span>, <span class="va">True</span>])</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>cm_display.plot()</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Confusion Matrix for Random Classifier, Text and Tabular Data "</span>)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(accuracy_score(texty, rand_texty))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-5-output-1.png" width="542" height="449"></p>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.5047400459036024
+0.5148662041625371</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-5-output-3.png" width="533" height="449"></p>
+</div>
+</div>
+<p>Based on both the confusion matrices and the accuracy scores, we can see that the random classifier performs close to a coinflip, with 51% accuracy for the tabular data and 48% accuracy for the textual and tabular data combined. Now let’s evaluate a single decision tree:</p>
+<p>First, we make sure we have train and validation data:</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>treeTab <span class="op">=</span> dataIn</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>treeTab[<span class="st">'activityIncrease'</span>] <span class="op">=</span> treeTab[<span class="st">'deltaActivity'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">int</span>(x <span class="op">&gt;</span> <span class="dv">0</span>) )</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>treeTabx <span class="op">=</span>  treeTab.drop(columns <span class="op">=</span> [<span class="st">'activityIncrease'</span>, <span class="st">'deltaActivity'</span>, <span class="st">'ticker'</span>, <span class="st">'date.x'</span>, <span class="st">'date.y'</span>, <span class="st">'weekyear'</span>, <span class="st">'week.x'</span>, <span class="st">'Total'</span>, <span class="st">'X8.week'</span>, <span class="st">'week.y'</span>, <span class="st">'lagweek'</span>])</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>treeTaby <span class="op">=</span> treeTab[<span class="st">'activityIncrease'</span>]</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>tree_trainx, tree_testx, tree_trainy, tree_testy <span class="op">=</span> train_test_split(treeTabx, treeTaby, test_size<span class="op">=</span> <span class="fl">0.33</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.tree <span class="im">import</span> DecisionTreeClassifier</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>class_1 <span class="op">=</span> DecisionTreeClassifier(max_depth<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>class_1.fit(tree_trainx, tree_trainy)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn <span class="im">import</span> tree</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_tree(model):</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">25</span>,<span class="dv">20</span>))</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    _ <span class="op">=</span> tree.plot_tree(model, </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                    filled<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>plot_tree(class_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-7-output-1.png" width="1879" height="1498"></p>
+</div>
+</div>
+<p>Let’s look at the confusion matrix:</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>c1tpred <span class="op">=</span> class_1.predict(tree_trainx)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>c1vpred <span class="op">=</span> class_1.predict(tree_testx)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="op">=</span> metrics.confusion_matrix(tree_testy, c1vpred)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>cm_display <span class="op">=</span> metrics.ConfusionMatrixDisplay(confusion_matrix <span class="op">=</span> confusion_matrix, display_labels <span class="op">=</span> [<span class="va">False</span>, <span class="va">True</span>])</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>cm_display.plot()</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(accuracy_score(tree_testy, c1vpred))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.729635499207607</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-8-output-2.png" width="537" height="429"></p>
+</div>
+</div>
+<p>Our baseline tree obtains an impressive accuracy of 73.2% on the test set! Let’s see if it performs similarly well on the text data. First, we prepare the text train and test split:</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>treeTxt <span class="op">=</span> processed3</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>treeTxtx <span class="op">=</span>  treeTxt.drop(columns <span class="op">=</span> [<span class="st">'activityIncrease'</span>])</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>treeTxty <span class="op">=</span> treeTxt[<span class="st">'activityIncrease'</span>]</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>tree_train_txtx, tree_test_txtx, tree_train_txty, tree_test_txty <span class="op">=</span> train_test_split(treeTxtx, treeTxty, test_size<span class="op">=</span> <span class="fl">0.33</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, we can fit our depth 4 tree:</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>class_2 <span class="op">=</span> DecisionTreeClassifier(max_depth<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>class_2.fit(tree_train_txtx, tree_train_txty)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_tree(model):</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">25</span>,<span class="dv">20</span>))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    _ <span class="op">=</span> tree.plot_tree(model, </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>                    filled<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>plot_tree(class_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-10-output-1.png" width="1879" height="1498"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>c2tpred <span class="op">=</span> class_2.predict(tree_train_txtx)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>c2vpred <span class="op">=</span> class_2.predict(tree_test_txtx)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="op">=</span> metrics.confusion_matrix(tree_test_txty, c2vpred)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>cm_display <span class="op">=</span> metrics.ConfusionMatrixDisplay(confusion_matrix <span class="op">=</span> confusion_matrix, display_labels <span class="op">=</span> [<span class="va">False</span>, <span class="va">True</span>])</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>cm_display.plot()</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(accuracy_score(tree_test_txty, c2vpred))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.5990990990990991</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-11-output-2.png" width="529" height="429"></p>
+</div>
+</div>
+<p>Interestingly, on the tree with the text data added, we see much worse performance, around 63%. This could certainly be due to the lack of training data when limiting to only those stock posts with reddit texts available. Notably, however, several of the text columns did enter into the decision tree, suggesting the text data was not completely meaningless. Let’s see if we can get better performance by implementing bagging and random forests.</p>
 <h1>
-Model Implementation
+Model Implementation and Hyperparameter Tuning
 </h1>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>treeTab <span class="op">=</span> dataIn</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>treeTab[<span class="st">'activityIncrease'</span>] <span class="op">=</span> treeTab[<span class="st">'deltaActivity'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">int</span>(x <span class="op">&gt;</span> <span class="dv">0</span>) )</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>treeTab <span class="op">=</span> treeTab.dropna()</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>treeTabx <span class="op">=</span>  treeTab.drop(columns <span class="op">=</span> [<span class="st">'activityIncrease'</span>, <span class="st">'deltaActivity'</span>, <span class="st">'ticker'</span>, <span class="st">'date.x'</span>, <span class="st">'date.y'</span>, <span class="st">'weekyear'</span>, <span class="st">'week.x'</span>, <span class="st">'Total'</span>, <span class="st">'X8.week'</span>, <span class="st">'week.y'</span>, <span class="st">'lagweek'</span>])</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>treeTaby <span class="op">=</span> treeTab[<span class="st">'activityIncrease'</span>]</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>tree_trainx, tree_testx, tree_trainy, tree_testy <span class="op">=</span> train_test_split(treeTabx, treeTaby, test_size<span class="op">=</span> <span class="fl">0.33</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>rf <span class="op">=</span> RandomForestClassifier(n_estimators <span class="op">=</span> <span class="dv">1000</span>, random_state <span class="op">=</span> <span class="dv">42</span>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>rf.fit(tree_trainx, tree_trainy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<style>#sk-container-id-1 {color: black;}#sk-container-id-1 pre{padding: 0;}#sk-container-id-1 div.sk-toggleable {background-color: white;}#sk-container-id-1 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-1 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-1 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-1 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-1 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-1 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-1 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-1 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-1 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-1 div.sk-item {position: relative;z-index: 1;}#sk-container-id-1 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-1 div.sk-item::before, #sk-container-id-1 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-1 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-1 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-1 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-1 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-1 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-1 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-1 div.sk-label-container {text-align: center;}#sk-container-id-1 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-1 div.sk-text-repr-fallback {display: none;}</style><div id="sk-container-id-1" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>RandomForestClassifier(n_estimators=1000, random_state=42)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-1" type="checkbox" checked=""><label for="sk-estimator-id-1" class="sk-toggleable__label sk-toggleable__label-arrow">RandomForestClassifier</label><div class="sk-toggleable__content"><pre>RandomForestClassifier(n_estimators=1000, random_state=42)</pre></div></div></div></div></div>
+</div>
+</div>
+<p>Now that we’ve fit the random forest model, let’s diagnose and create plots:</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>c3tpred <span class="op">=</span> rf.predict(tree_trainx)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>c3vpred <span class="op">=</span> rf.predict(tree_testx)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="op">=</span> metrics.confusion_matrix(tree_testy, c3vpred)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>cm_display <span class="op">=</span> metrics.ConfusionMatrixDisplay(confusion_matrix <span class="op">=</span> confusion_matrix, display_labels <span class="op">=</span> [<span class="va">False</span>, <span class="va">True</span>])</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>cm_display.plot()</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(accuracy_score(tree_testy, c3vpred))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.74640522875817</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-13-output-2.png" width="537" height="433"></p>
+</div>
+</div>
+<p>Out random forest classifier has only produced an accuracy of 73.5%, which is barely better than our naive decision tree. Let’s try a gradient boosted classifier and see if it performs better:</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> GradientBoostingClassifier</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>gbc <span class="op">=</span> GradientBoostingClassifier(n_estimators <span class="op">=</span> <span class="dv">1000</span>, random_state <span class="op">=</span> <span class="dv">42</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>gbc.fit(tree_trainx, tree_trainy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<style>#sk-container-id-2 {color: black;}#sk-container-id-2 pre{padding: 0;}#sk-container-id-2 div.sk-toggleable {background-color: white;}#sk-container-id-2 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-2 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-2 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-2 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-2 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-2 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-2 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-2 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-2 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-2 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-2 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-2 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-2 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-2 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-2 div.sk-item {position: relative;z-index: 1;}#sk-container-id-2 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-2 div.sk-item::before, #sk-container-id-2 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-2 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-2 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-2 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-2 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-2 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-2 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-2 div.sk-label-container {text-align: center;}#sk-container-id-2 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-2 div.sk-text-repr-fallback {display: none;}</style><div id="sk-container-id-2" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>GradientBoostingClassifier(n_estimators=1000, random_state=42)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-2" type="checkbox" checked=""><label for="sk-estimator-id-2" class="sk-toggleable__label sk-toggleable__label-arrow">GradientBoostingClassifier</label><div class="sk-toggleable__content"><pre>GradientBoostingClassifier(n_estimators=1000, random_state=42)</pre></div></div></div></div></div>
+</div>
+</div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>c4tpred <span class="op">=</span> gbc.predict(tree_trainx)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>c4vpred <span class="op">=</span> gbc.predict(tree_testx)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="op">=</span> metrics.confusion_matrix(tree_testy, c4vpred)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>cm_display <span class="op">=</span> metrics.ConfusionMatrixDisplay(confusion_matrix <span class="op">=</span> confusion_matrix, display_labels <span class="op">=</span> [<span class="va">False</span>, <span class="va">True</span>])</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>cm_display.plot()</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(accuracy_score(tree_testy, c4vpred))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.7516339869281046</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-15-output-2.png" width="537" height="429"></p>
+</div>
+</div>
+<p>Surprisingly, the gradient boosted classifier did worse, if anything, than the random forests. Let’s try to select the optimal n_estimators hyperparameter and see if that helps our performance (I will use acccuracy scores for the plot)</p>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>test_accuracy <span class="op">=</span> []</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>train_accuracy <span class="op">=</span> []</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>nestimators <span class="op">=</span> []</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>, <span class="dv">1100</span>, <span class="dv">100</span>):</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(i)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    rf <span class="op">=</span> GradientBoostingClassifier(n_estimators <span class="op">=</span> i, random_state <span class="op">=</span> <span class="dv">42</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    rf.fit(tree_trainx, tree_trainy)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    testpreds <span class="op">=</span> rf.predict(tree_testx)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    trainpreds <span class="op">=</span> rf.predict(tree_trainx)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    train_accuracy.append(accuracy_score(tree_trainy, trainpreds))</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    test_accuracy.append(accuracy_score(tree_testy, testpreds))</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    nestimators.append(i)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>100
+200
+300
+400
+500
+600
+700
+800
+900
+1000</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>plt.plot(nestimators, test_accuracy,label<span class="op">=</span><span class="st">'Test Accuracy'</span> )</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>plt.plot(nestimators, train_accuracy,label<span class="op">=</span><span class="st">'Train Accuracy'</span> )</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Number of Estimators"</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Accuracy of the Model"</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Accuracy vs. Number of Estimators for Boosted Forests"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<pre><code>Text(0.5, 1.0, 'Accuracy vs. Number of Estimators for Boosted Forests')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-17-output-2.png" width="597" height="449"></p>
+</div>
+</div>
+<p>Viewing the hyperparameter chart, it seems clear that a smaller number of estimators, close to 100, actually leads to the best performance on the test set. Likely this is the consequence of overfitting. Regardless, the ideal parameter choice is clear as the best model is also the simplest, and leads to an accuracy of almost 75%, the best of any model to date.</p>
 <h1>
-Hyperparameter Tuning
+Final Results for Boosted Forest
 </h1>
-<h1>
-Final Results
-</h1>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>gbc <span class="op">=</span> GradientBoostingClassifier(n_estimators <span class="op">=</span> <span class="dv">100</span>, random_state <span class="op">=</span> <span class="dv">42</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>gbc.fit(tree_trainx, tree_trainy)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>c5tpred <span class="op">=</span> gbc.predict(tree_trainx)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>c5vpred <span class="op">=</span> gbc.predict(tree_testx)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="op">=</span> metrics.confusion_matrix(tree_testy, c5vpred)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>cm_display <span class="op">=</span> metrics.ConfusionMatrixDisplay(confusion_matrix <span class="op">=</span> confusion_matrix, display_labels <span class="op">=</span> [<span class="va">False</span>, <span class="va">True</span>])</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>cm_display.plot()</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(accuracy_score(tree_testy, c5vpred))</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>sub_tree <span class="op">=</span> gbc.estimators_[<span class="dv">50</span>, <span class="dv">0</span>]</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>plot_tree(sub_tree)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.7581699346405228</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-18-output-2.png" width="537" height="429"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="dectrees_files/figure-html/cell-18-output-3.png" width="1879" height="1498"></p>
+</div>
+</div>
 <h1>
 Conclusions
 </h1>
+<p>Overall, the boosted forest model was the best performing out of the 1) simple decision tree 2) random forest and 3) boosted models. This also clearly outperformed a random baseline, and was most robust with 100 estimators included in the model. The boosted forest forest model performs very well (for a financial model) at 74.7% accuracy. This provides a remarkable picture of what drives investor activity in individual stocks, although it may not be the complete picture still. To understand what features the model uses to predict with accuracy, let’s trace one sample pathway through one component tree of the boosted model:</p>
+<p>Looking at the final tree above (one of many in the classifier, but chosen to illustrate the internal relationships that power the mode). The features, going down the tree are: First a split based on current investor activity in the stock, if it is lower than 0.043 then the model check whether the spread in investor sentiment (bearish bullish) is wider than -0.33, which would indicate a bearish environment. Then, the model would predict based on investor activity in the stock.</p>
+<p>Reviewing this example, it appears the model is very interested in the sentiment of investors in the survey, particularly bearish sentiment, as well as the activity of retail investors in a stock on the current day.</p>
+<p>Concerns: One concern I have is that the amount of data is somewhat small &lt;3000 by the end for the random forests given excluded NA values. This is a concern because it allows models such as decision trees to overfit, and this is shown in the random forest having almost perfect accuracy in the training set, but no improvements in the test set with more estimators. I am also concerned that the CURRENT investor activity index is being used to predict the change for the next day, as this worries me that there is some conflation in the acitivty day over day. I would be curious to confirm how all of the data is defined, to ensure we are actually predicting the future without having more information than is realistic in real time.</p>
+<p>Future directions: I would like to incorporate the text data as well, to make the predictions even more robust.</p>
 
 
 

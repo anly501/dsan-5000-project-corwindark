@@ -1,6 +1,5 @@
 ---
-title: "dectrees"
-engine: knitr
+title: "Decision Trees"
 execute:
     freeze: true
 ---
@@ -8,35 +7,359 @@ execute:
 
 <h1> Methods </h1>
 
+Random and boosted forests are some of the most pervasive machine learning methods today. For tabular data, these methods are extremely effective at identifying nonlinear relationships, as well as identifying which features in the input space are most important. I hope to use the excellent results promised by these methods to achieve real predictive power on my outcome variables (the direction and amount that retail activity changes on a given stock in a given day). To do this,  I will try and predict these outcome variables using all of my tabular predictors. I have tabular data for all observations, but only some have complete  data, and based on the selectiveness of the different models the number of viable observations range from ~8,000 to just 2000 in the dataset. For each of these  models I will attempt to correctly classify which stocks increased or decreased in activity, which is the outcome variable/
 
+I will start by creating a single decision tree as a baseline, and I will determine what accuracy this tree is able to achieve in classifying increases and decreases in activity. I will also fit a random classifier, so that I can compare my later models to a purely random result. After I have run this baseline both with and without the text data, I will run a random forest model. Based on the performance of this model, I will also try a boosted model, and then I will pick one of the two for which to optimize hyperparamters to get the best result. 
+
+Decision trees can work for problems like mine because they are exceptionally good at identifying nonlinear relationships in data. To understand how they work, imagine you are deciding between 20 new car models to buy. A decision tree is similar to how a human being might approach such a choice. In finding the best car to purchase, you might set a standard or threshold such as: "less than x amount of dollars to purchase." This would eliminate some number of the cars. Then you would further ask for features such as "all wheel drive," or "seatwarmers," until eventually you had a car which was the closest to your true requirements. Decision trees are essentially a similar method as this anecdote, except they attempt to find the most efficient number of requirements you could specify to match a car to a given person (classification) or it's most ideal pricepoint(regression). In mathematical terms, they try to reduce the entropy of the dataset by dividing it along meaningful and efficient boundaries (called nodes that divide the data into branches), until only small distinct groups are left (called leaves).
 
 <h1> Class Distribution </h1>
 
+Read in and clean data:
+
+```{python}
+import json
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import silhouette_samples, silhouette_score
+import pandas as pd
+import seaborn as sns
+import os
+
+
+tabData = pd.read_csv("../data/01-modified-data/joinedSentiment.csv") 
+tabData.shape
+
+textData = pd.read_csv("../data/01-modified-data/vectorizedReddit.csv") 
+tabData.shape
+```
+
+
+More cleaning code to create the datasets.
+
+```{python}
+textsIn = textData
+dataIn = tabData
+
+s = textsIn.sum(axis=0)
+textsIn=textsIn[ s.index[s != 1]   ]
+textsIn.shape
+
+from datetime import datetime, timedelta
+dataIn['date.x'] = dataIn['date.x'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').date())
+dataIn['date.x'] = dataIn['date.x'] - timedelta(days = 1)
+
+dataIn.SPYCloseWK = dataIn.SPYCloseWK.apply(lambda x: float(str(x).replace(",", "") ))
+dataIn.SPYHighWk = dataIn.SPYHighWk.apply(lambda x: float(str(x).replace(",", "") ))
+dataIn.SPYLowWK = dataIn.SPYLowWK.apply(lambda x: float(str(x).replace(",", "") ))
+
+# Join
+textsIn = pd.DataFrame(textsIn)
+textsIn['date_utc'] = textsIn['date_utc'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').date())
+processed = pd.merge(dataIn, textsIn, how = 'left', left_on = ['date.x', 'ticker'], right_on = ['date_utc', 'ticker'] )
+
+
+processed['activityIncrease'] = processed['deltaActivity'].apply(lambda x: int(x > 0) )
+
+processed2 = processed.dropna(subset=['date_utc'])
+print(processed2.shape)
+
+
+exclude = ['lagweek','date_utc','title', 'Unnamed: 0', 'X', 'date.x', 'X8.week', 'Total', 'week.y', 'date.y', 'deltaActivity', 'weekyear', 'ticker', 'activity_x', 'sentiment_x', 'deltaSentiment', 'newEntry', 'week.x']
+
+
+processed3 = processed2.drop(columns = exclude, axis = 1)
+
+processed3.head()
+X = processed3.drop('activityIncrease', axis=1)
+y = processed3['activityIncrease']
+
+```
+
+Class distribution for full (8,000) and reduced (2,000) datasets.
 
 ```{python}
 # Code to compute the class distribution
+xlocs = [0,1]
+xlabs = ["Decreased", "Increased or Stayed the Same"]
 
+temp = processed2.loc[:,'activityIncrease'].astype(str)
+temp2 = processed.loc[:,'activityIncrease'].astype(str)
 
+values, bins, bars = plt.hist(temp, edgecolor='white')
+plt.xticks(xlocs, xlabs)
+plt.bar_label(bars, fontsize=20, color='navy')
+plt.title("Class Distribution for Tickers with Reddit Posts ")
+plt.show()
+
+values, bins, bars = plt.hist(temp2, edgecolor='white')
+plt.xticks(xlocs, xlabs)
+plt.bar_label(bars, fontsize=20, color='navy')
+plt.title("Class Distribution for all Tickers in Dataset")
+plt.show()
 ```
+
+Based on the plots, we can see that 827 stocks in the daily top 10 decreased in retail trader activity, while 1191 increased, for the data which had relevant reddit posts available. As a proportion, this is 0.41 of all the stocks in the top 10 with reddit posts. In the second plots, for all the tickers in the dataset, 4373 had a decrease, while 5648 had an increase.  As a proportion, this is 0.44 out of all stocks in the top 10. It is worth noting that the outcome variable differs in proportion between the categories.
+
+
 
 
 <h1> Baseline Model / Random Classifier </h1>
 
-```{python}
+Now, let's train a random classifier and a baseline decision tree on our two datasets, and visualize the tree that we construct. Starting with the random classifier:
 
-# Random classifier code
+```{python}
+from sklearn import metrics
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+from numpy import random
+from sklearn.metrics import accuracy_score
+
+
+ally = temp2.astype(int)
+texty = temp.astype(int)
+
+rand_ally = random.randint(2, size = ally.shape[0])
+rand_texty = random.randint(2, size = texty.shape[0])
+
+confusion_matrix = metrics.confusion_matrix(ally, rand_ally)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = [False, True])
+cm_display.plot()
+plt.title("Confusion Matrix for Random Classifier, Text and Tabular Data ")
+plt.show()
+print(accuracy_score(ally, rand_ally))
+
+
+confusion_matrix = metrics.confusion_matrix(texty, rand_texty)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = [False, True])
+cm_display.plot()
+plt.title("Confusion Matrix for Random Classifier, Text and Tabular Data ")
+plt.show()
+
+print(accuracy_score(texty, rand_texty))
+```
+
+Based on both the confusion matrices and the accuracy scores, we can see that the random classifier performs close to a coinflip, with 51% accuracy for the tabular data and 48% accuracy for the textual and tabular data combined. Now let's evaluate a single decision tree:
+
+First, we make sure we have train and validation data:
+```{python}
+from sklearn.model_selection import train_test_split
+
+treeTab = dataIn
+treeTab['activityIncrease'] = treeTab['deltaActivity'].apply(lambda x: int(x > 0) )
+
+
+treeTabx =  treeTab.drop(columns = ['activityIncrease', 'deltaActivity', 'ticker', 'date.x', 'date.y', 'weekyear', 'week.x', 'Total', 'X8.week', 'week.y', 'lagweek'])
+treeTaby = treeTab['activityIncrease']
+
+tree_trainx, tree_testx, tree_trainy, tree_testy = train_test_split(treeTabx, treeTaby, test_size= 0.33)
 
 ```
 
-<h1> Model Implementation </h1>
+
+```{python}
+from sklearn.tree import DecisionTreeClassifier
+
+class_1 = DecisionTreeClassifier(max_depth=4)
+
+class_1.fit(tree_trainx, tree_trainy)
+
+from sklearn import tree
+def plot_tree(model):
+    fig = plt.figure(figsize=(25,20))
+    _ = tree.plot_tree(model, 
+                    filled=True)
+    plt.show()
+
+plot_tree(class_1)
 
 
-<h1> Hyperparameter Tuning </h1>
+```
 
 
-<h1> Final Results </h1>
 
+Let's look at the confusion matrix:
+```{python}
+
+c1tpred = class_1.predict(tree_trainx)
+c1vpred = class_1.predict(tree_testx)
+
+confusion_matrix = metrics.confusion_matrix(tree_testy, c1vpred)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = [False, True])
+cm_display.plot()
+print(accuracy_score(tree_testy, c1vpred))
+
+```
+
+Our baseline tree obtains an impressive accuracy of 73.2% on the test set! Let's see if it performs similarly well on the text data. First, we prepare the text train and test split:
+
+```{python}
+treeTxt = processed3
+
+treeTxtx =  treeTxt.drop(columns = ['activityIncrease'])
+treeTxty = treeTxt['activityIncrease']
+
+tree_train_txtx, tree_test_txtx, tree_train_txty, tree_test_txty = train_test_split(treeTxtx, treeTxty, test_size= 0.33)
+```
+
+Now, we can fit our depth 4 tree:
+
+```{python}
+
+class_2 = DecisionTreeClassifier(max_depth=4)
+
+class_2.fit(tree_train_txtx, tree_train_txty)
+
+def plot_tree(model):
+    fig = plt.figure(figsize=(25,20))
+    _ = tree.plot_tree(model, 
+                    filled=True)
+    plt.show()
+
+plot_tree(class_2)
+
+
+```
+
+
+```{python}
+
+c2tpred = class_2.predict(tree_train_txtx)
+c2vpred = class_2.predict(tree_test_txtx)
+
+confusion_matrix = metrics.confusion_matrix(tree_test_txty, c2vpred)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = [False, True])
+cm_display.plot()
+print(accuracy_score(tree_test_txty, c2vpred))
+
+```
+
+Interestingly, on the tree with the text data added, we see much worse performance, around 63%. This could certainly be due to the lack of training data when limiting to only those stock posts with reddit texts available. Notably, however, several of the text columns did enter into the decision tree, suggesting the text data was not completely meaningless. Let's see if we can get better performance by implementing bagging and random forests.
+
+<h1> Model Implementation and Hyperparameter Tuning </h1>
+
+```{python}
+from sklearn.ensemble import RandomForestClassifier
+
+treeTab = dataIn
+treeTab['activityIncrease'] = treeTab['deltaActivity'].apply(lambda x: int(x > 0) )
+
+treeTab = treeTab.dropna()
+
+treeTabx =  treeTab.drop(columns = ['activityIncrease', 'deltaActivity', 'ticker', 'date.x', 'date.y', 'weekyear', 'week.x', 'Total', 'X8.week', 'week.y', 'lagweek'])
+treeTaby = treeTab['activityIncrease']
+
+tree_trainx, tree_testx, tree_trainy, tree_testy = train_test_split(treeTabx, treeTaby, test_size= 0.33)
+
+
+
+rf = RandomForestClassifier(n_estimators = 1000, random_state = 42)
+rf.fit(tree_trainx, tree_trainy)
+
+
+
+
+```
+
+Now that we've fit the random forest model, let's diagnose and create plots:
+```{python}
+
+c3tpred = rf.predict(tree_trainx)
+c3vpred = rf.predict(tree_testx)
+
+confusion_matrix = metrics.confusion_matrix(tree_testy, c3vpred)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = [False, True])
+cm_display.plot()
+print(accuracy_score(tree_testy, c3vpred))
+
+```
+
+Out random forest classifier has only produced an accuracy of 73.5%, which is barely better than our naive decision tree. Let's try a gradient boosted classifier and see if it performs better:
+
+```{python}
+
+from sklearn.ensemble import GradientBoostingClassifier
+
+
+gbc = GradientBoostingClassifier(n_estimators = 1000, random_state = 42)
+gbc.fit(tree_trainx, tree_trainy)
+
+
+```
+
+```{python}
+c4tpred = gbc.predict(tree_trainx)
+c4vpred = gbc.predict(tree_testx)
+
+confusion_matrix = metrics.confusion_matrix(tree_testy, c4vpred)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = [False, True])
+cm_display.plot()
+print(accuracy_score(tree_testy, c4vpred))
+
+```
+
+Surprisingly, the gradient boosted classifier did worse, if anything, than the random forests. Let's try to select the optimal n_estimators hyperparameter and see if that helps our performance (I will use acccuracy scores for the plot)
+
+```{python}
+
+test_accuracy = []
+train_accuracy = []
+nestimators = []
+
+for i in range(100, 1100, 100):
+    print(i)
+    rf = GradientBoostingClassifier(n_estimators = i, random_state = 42)
+    rf.fit(tree_trainx, tree_trainy)
+    
+    testpreds = rf.predict(tree_testx)
+    trainpreds = rf.predict(tree_trainx)
+
+    train_accuracy.append(accuracy_score(tree_trainy, trainpreds))
+    test_accuracy.append(accuracy_score(tree_testy, testpreds))
+    nestimators.append(i)
+
+```
+
+```{python}
+
+plt.plot(nestimators, test_accuracy,label='Test Accuracy' )
+plt.plot(nestimators, train_accuracy,label='Train Accuracy' )
+plt.xlabel("Number of Estimators")
+plt.ylabel("Accuracy of the Model")
+plt.title("Accuracy vs. Number of Estimators for Boosted Forests")
+```
+
+
+Viewing the hyperparameter chart, it seems clear that a smaller number of estimators, close to 100, actually leads to the best performance on the test set. Likely this is the consequence of overfitting. Regardless, the ideal parameter choice is clear as the best model is also the simplest, and leads to an accuracy of almost 75%, the best of any model to date.
+
+<h1> Final Results for Boosted Forest </h1>
+
+```{python}
+
+gbc = GradientBoostingClassifier(n_estimators = 100, random_state = 42)
+gbc.fit(tree_trainx, tree_trainy)
+    
+c5tpred = gbc.predict(tree_trainx)
+c5vpred = gbc.predict(tree_testx)
+
+confusion_matrix = metrics.confusion_matrix(tree_testy, c5vpred)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = [False, True])
+cm_display.plot()
+print(accuracy_score(tree_testy, c5vpred))
+
+sub_tree = gbc.estimators_[50, 0]
+
+plot_tree(sub_tree)
+```
 
 <h1> Conclusions </h1>
 
+Overall, the boosted forest model was the best performing out of the 1) simple decision tree 2) random forest and 3) boosted models. This also clearly outperformed a random baseline, and was most robust with 100 estimators included in the model. The boosted forest forest model performs very well (for a financial model) at 74.7% accuracy. This provides a remarkable picture of what drives investor activity in individual stocks, although it may not be the complete picture still. To understand what features the model uses to predict with accuracy, let's trace one sample pathway through one component tree of the boosted model:
 
+Looking at the final tree above (one of many in the classifier, but chosen to illustrate the internal relationships that power the mode). The features, going down the tree are: First a split based on current investor activity in the stock, if it is lower than 0.043 then the model check whether the spread in investor sentiment (bearish bullish) is wider than -0.33, which would indicate a bearish environment. Then, the model would predict based on investor activity in the stock. 
+
+Reviewing this example, it appears the model is very interested in the sentiment of investors in the survey, particularly bearish sentiment, as well as the activity of retail investors in a stock on the current day. 
+
+Concerns: One concern I have is that the amount of data is somewhat small <3000 by the end for the random forests given excluded NA values. This is a concern because it allows models such as decision trees to overfit, and this is shown in the random forest having almost perfect accuracy in the training set, but no improvements in the test set with more estimators. I am also concerned that the CURRENT investor activity index is being used to predict the change for the next day, as this worries me that there is some conflation in the acitivty day over day. I would be curious to confirm how all of the data is defined, to ensure we are actually predicting the future without having more information than is realistic in real time.
+
+Future directions: I would like to incorporate the text data as well, to make the predictions even more robust.
