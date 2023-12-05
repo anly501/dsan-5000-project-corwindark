@@ -1,5 +1,5 @@
 ---
-title: "Data Gathering"
+title: "Data Cleaning"
 engine: knitr
 execute:
     freeze: true
@@ -8,18 +8,69 @@ project:
 ---
 
 
+### Retail Activity
+
+Clean Record Data in R
+- (View Raw Data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/00-raw-data/ndaqRT.csv]
+- (View Clean Data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/joinedSentiment.csv]
 
 
-<h2> Clean Record Data in R </h2>
-
-``` {r}
+```{r}
+library(tidyverse)
+library(lubridate)
 library(reticulate)
+
+
+cleanData <- data %>% 
+    mutate(date = ymd(date)) %>%
+    filter(year(date) > 2019)
+
+cleanData <- cleanData[order(cleanData$date),]
+cleanData$deltaActivity <- vector(mode = "numeric", length = nrow(cleanData))
+cleanData$deltaSentiment <- vector(mode = "numeric", length = nrow(cleanData))
+cleanData$newEntry <- vector(mode = 'logical', length = nrow(cleanData))
+
+for(i in 1:nrow(cleanData)) {
+    if(i %% 1000 == 0) {
+        print(i)
+    }
+    prevDay <- cleanData %>%
+        filter(day(date) == day(cleanData$date[i]) - 1) %>%
+        filter(ticker == cleanData$ticker[i])
+
+    if(nrow(prevDay) > 0) {
+
+        cleanData$deltaActivity[i] = cleanData$activity[i] - prevDay$activity[1]
+        cleanData$deltaSentiment[i] = cleanData$sentiment[i] - prevDay$sentiment[1]
+        cleanData$newEntry[i] = FALSE
+    
+    }else {
+        cleanData$newEntry[i] = TRUE
+    }
+}
+
+colnames(cleanData)
+hist(cleanData$deltaActivity)
+
+head(cleanData, 100)
 
 ```
 
 
+### Investor Sentiment
+- (View raw data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/00-raw-data/sentiment_aaii.csv]
+- (View clean data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/joinedSentiment.csv]
+
+```{r}
+# Copy code to clean investor sentiment data from other tabs
+```
 
 <h2> Cleaning Reddit Text Corpus in Python </h2>
+
+- (View Original Data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/topRedditText.xlsx]
+- (View Cleaned Data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/vectorizedReddit.csv]
+ Clean Text Data in Python
+
 
 Most of my work on preparing the text data is on the Naive Bayes tab. Below I take the reddit data and 
 
@@ -34,6 +85,7 @@ os.getcwd()
 
 I ran the following code to clean my data: 
 
+```{python}
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 import pandas as pd
@@ -84,7 +136,7 @@ redditCV.head()
 
 redditCV.to_csv('./data/01-modified-data/vectorizedReddit.csv', index=False)
 #print(df)
-
+```
 
 
 ```{python}

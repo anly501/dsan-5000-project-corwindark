@@ -4,12 +4,15 @@ author: Corwin Dark
 bibliography: ../references.bib 
 ---
 
+## Introduction
 
 Financial markets have become substantially more available to a wider class of investors in recent years. Brokers have developed mobile apps that can run on anyone's personal device, trading fees have been reduced to zero in many cases, and new fintech companies have emerged that seek to make investing more available to everyday people, such as Robinhood, Acorns, Wealthfront and others. These developments came to a head in 2020, when so-called retail investing (investing by individuals who buy stocks directly and have smaller balances) exploded during the pandemic. [@lush_2021] 
 
 While broader access to financial markets could distribute the gains from investing more fairly, it also increases the risk that everyday investors will lose money through bad investments. Without the backing of institutions that is often found in retirement accounts, nothing protects indvididual investors from taking on extreme risk or buying into companies without sufficient information. Further, retail investors have a spillover effect on markets as a whole, because the sums of money involved can affect companies' valuations and financial conditions overall. As such, understanding retail investors' impact has become crucial to staying informed on the forces guiding market dynamics in today's world. 
 
 Unsurprisingly, researchers have begun to study this phenomena from several angles. Academics have found that including sentiment from retail investor forums helps their models predict prices more accurately [@jing_hybrid_2021], relying on social media data sources that have become increasingly important in financial analysis [@khan_stock_2022]. Khan et. al also found that the impact of social media hype and retail investors varied in importance based on the particular stock market exchange or security being studied. Dividing up the market into smaller segments is certainly a promising area of analysis, based on this work. Overall, data science methods are well suited to address this question, and some areas such as deep learning have become embedded across topics in finance and banking [@huang_deep_2020]. 
+
+## Research Questions
 
 In this project, I am seeking to investigate the following research questions: 
 
@@ -24,4 +27,7 @@ In this project, I am seeking to investigate the following research questions:
 9. Do media datasets include signs that news coverage spawns retail investor interest? 
 10. Do media datasets include signs that retail investor interest spawns news coverage?
 
-To address these questions, I will look at common measures of retail investor interest, including forum posts, social media messages and sentiment, and trading patterns for particular financial instruments.
+To address these questions, I will look at common measures of retail investor interest, including forum posts, social media messages and sentiment, and trading patterns for 
+particular financial instruments.
+
+## Hypotheses

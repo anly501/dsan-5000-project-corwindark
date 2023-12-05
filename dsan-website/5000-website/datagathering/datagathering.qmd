@@ -5,15 +5,34 @@ execute:
     freeze: true
 ---
 
+## Introduction
 
-For this project, I need to gather a range of data on retail investor sentiment. Reviewing the literature, it does not appear that a consesus has been reached on which mediums are most useful for measuring retail investor trades, let alone their sentiment. After an extensive review, I decided to try and construct a set of trading signals from the following:
-1. Daily NASDAQ data on the top-10 retail investor held companies (API through R Quandl Package)
-2. Text data from popular stock-trading subreddits (Reddit API through R)
-3. Stocktwits mentions of popular companies through (Stocksera API in Python)
-4. Weekly polls of investor sentiment from the American Association of Individual Investors (downloaded as CSV)
-5. Text data from major financial new companies
+### Finding Meaningful Retail Investor Data
 
-Starting with dataset 1: Nasdaq retail investor holdings
+While retail investor trading activity in individual companies has aroused great amounts of interest in the academic literature, practical methods for accessing this data are surprisingly limited. Even measuring which trades are truly by retail investors is a disputed matter that raises questions about the validity of any study into the subject. In this regard, the paper by Boehmer, Jones, Zhang, and Zhan [@boehmer_tracking_2020] is widely referenced and considered the "gold standard" in identifying retail trades. The authors make use of a strategy based on the tenths of a cent that are involved in a trade, alleging that trades with particular trailing digits can be flagged as made by individual investors. I pursued this strategy initially but found two problems: First, the accuracy of the method itself is disputed, with another study finding it only identified 35% of verified retail trades they placed on different accounts [@barber_subpenny_2023]. Second, the process of gathering the orimary data needed for the method from government disclosures is difficult in itself, and no third parties appeared to offer data generated with exactly this method.
+
+After reviewing many financial databases, I ultimately identified a new data product offered by Nasdaq's data link service, which was termed the "Retail Trading Activity Tracker" and provided by The Applied Research Company. This provided two essential metrics: the porportion by dollar value of the stock's daily volume that was traded by retail investors, and the relative ranking of each stock by this proportion. I believed this data to be a high standard due to its valuation as a purchasable product, and its promotion by a prominent stock market actor in Nasdaq. Unfortunately, the full dataset required paid access, but I was able to access the top-10 stocks which had the highest retail trader activity proportion each day. By looking at the available proportion of activity, and whether each stock remained in the top-10 day over day, I was able to construct a daily binary outcome from whether each ticker increased or decreased in proportionate retail trader activity from the day before.
+
+### A Shortage of Public Social Media Data
+
+The next question was how to gather meaningful inputs to compare with retail activity. My research question was centered on social media data and sentiment towards financial instruments, and I intended to gather data from online communities know for discussing investments such as Reddit, Stocktwits, and Robinhood. While past studies had found a wealth of data on these subjects, I quickly realized that this data had recently become less accessible. Since roughly the start of 2020:
+
+- Robinhood had shut down its API completely, which also closed associated datasources such as Robintrack which were used in many research papers. 
+- Reddit had begun charging for access to its API, which it had previously offered for free.
+- Stocktwits had also shut down its API completely, and and associated 3rd party websites called Stocksera which had collected the data appeared to go offline during the project
+
+I mitigated these shortages by finding two datasets, one tabular and one textual, that contained information about retail traders' sentiment and social media activity. For the tabular data, I found the American Association of Individual Investors conducts a weekly survey of its members' sentiment about the market in the upcoming week (the three options being bullish, bearish, or neutral). For the textual data, I was able to use the Reddit API to make a limited number of free queries, which I used to gather the most popular posts from the largest stock trading forum. While I had originally hoped to gather an exhaustive list of posts from a variety of investment-focused forums, the limited dataset of around ~900 posts contained at least 2000 references to top-10 stocks in the desired time period, enough coverage for a meaningful investigation.
+
+## Methods
+
+Reviewing the methods nessecary for gathering the datasets mentioned above:
+1. Daily NASDAQ data on the top-10 retail investor held companies (Python API through Quandl Package, R code for the equivalent package also listed below)
+2. Text data from popular stock-trading subreddits (Reddit API through R and RedditExtractoR package)
+3. Weekly polls of investor sentiment from the American Association of Individual Investors (downloaded as CSV)
+
+### Dataset 1: Nasdaq Retail Investor Activity
+
+R version of the NASDAQ api.
 ```{r}
 library(tidyverse)
 library(Quandl)
@@ -22,45 +41,13 @@ library(RedditExtractoR)
 library(reticulate)
 library(xlsx)
 
+
 Quandl.api_key("psq4nx69HDimf2kQcxZJ")
 data <- Quandl.datatable("NDAQ/RTAT10", paginate = TRUE)
 
-cleanData <- data %>% 
-    mutate(date = ymd(date)) %>%
-    filter(year(date) > 2019)
-
-cleanData <- cleanData[order(cleanData$date),]
-cleanData$deltaActivity <- vector(mode = "numeric", length = nrow(cleanData))
-cleanData$deltaSentiment <- vector(mode = "numeric", length = nrow(cleanData))
-cleanData$newEntry <- vector(mode = 'logical', length = nrow(cleanData))
-
-for(i in 1:nrow(cleanData)) {
-    if(i %% 1000 == 0) {
-        print(i)
-    }
-    prevDay <- cleanData %>%
-        filter(day(date) == day(cleanData$date[i]) - 1) %>%
-        filter(ticker == cleanData$ticker[i])
-
-    if(nrow(prevDay) > 0) {
-
-        cleanData$deltaActivity[i] = cleanData$activity[i] - prevDay$activity[1]
-        cleanData$deltaSentiment[i] = cleanData$sentiment[i] - prevDay$sentiment[1]
-        cleanData$newEntry[i] = FALSE
-    
-    }else {
-        cleanData$newEntry[i] = TRUE
-    }
-}
-
-colnames(cleanData)
-hist(cleanData$deltaActivity)
-
-head(cleanData, 100)
-getwd()
-#write.csv(cleanData, "./data/01-modified-data/cleanRTAT.csv")
 ```
 
+Python version of the NASDAQ api.
 ```{python}
 
 import pandas as pd
@@ -73,13 +60,13 @@ quandl.ApiConfig.api_key = 'psq4nx69HDimf2kQcxZJ'
 table1 = quandl.get_table('NDAQ/RTAT10', date='2023-09-28,2023-09-27,2023-09-26', ticker='TSLA,TQQQ,SQQQ')
 
 print(table1)
-
-
 ```
 
 Here I put my api key into the quandl function and I am able to get data going back to 2016 with no issue.
 
-Dataset 2: Text data from reddit
+
+
+### Dataset 2: Text Data from Reddit
 
 ```{r}
 
@@ -88,7 +75,7 @@ Dataset 2: Text data from reddit
 # which is calculated based on how likely users are to post on one or the other subs
 # targeting investment related subs with >400k users
 # loop through subreddits and get titles from past month
-
+# Limited to just one of the subreddits, so I chose Wallstreet bets, the most famous
 
 #install.packages("RedditExtractoR", repos='https://cloud.r-project.org/')
 
@@ -140,42 +127,12 @@ Here I have gathered a list of 7 stock trading subreddits, which I created by se
 Updated Method: using r/stocks only, get posts for the 100 most common tickers in the most-held datatable.
 
 
-3. Stocktwits rankings
-```{python}
-# stocksera
-# https://pypi.org/project/stocksera/
-# use this for news ratings, stocktwits website mentions and ranking
-# api key: 2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1
+### Dataset 3: AAII Investor Sentiment
 
-import subprocess
-import sys
-
-def install(name):
-    subprocess.call([sys.executable, '-m', 'pip', 'install', name])
-
-#install("stocksera")
-
-import stocksera
-
-client = stocksera.Client(api_key="2qs0tTwf.8sC7wUQ1Pf5zroD3IHx3XVTLwpHUifZ1")
-
-
-stw = client.stocktwits(ticker = "QQQ")
-print(stw)
-
-
-
-sbrs = client.wsb_mentions(days=500, ticker="QQQ")
-print(sbrs)
-```
-
-
-Dataset 4: (In Progress) Weekly Investor Sentiment from AAII
 ```{r}
 # AAII weekly survey data https://www.aaii.com/sentimentsurvey/sent_results
 # read in as csv 
 
-getwd()
 aaWeekly <- read.csv("./data/00-raw-data/sentiment_aaii.csv")
 head(aaWeekly)
 
