@@ -14,7 +14,7 @@ For this project, I need to gather a range of data on retail investor sentiment.
 5. Text data from major financial new companies
 
 Starting with dataset 1: Nasdaq retail investor holdings
-``{r}
+```{r}
 library(tidyverse)
 library(Quandl)
 library(lubridate)
@@ -59,13 +59,13 @@ hist(cleanData$deltaActivity)
 head(cleanData, 100)
 getwd()
 #write.csv(cleanData, "./data/01-modified-data/cleanRTAT.csv")
-``
+```
 
 Here I put my api key into the quandl function and I am able to get data going back to 2016 with no issue.
 
 Dataset 2: Text data from reddit
 
-``{r}
+```{r}
 
 # get a particular stock's mentions in titles in each of the 7 subreddits
 # found subreddits by measuring overlap from https://subredditstats.com/subreddit-user-overlaps/superstonk
@@ -117,7 +117,7 @@ for(i in 1:length(uqTickers)) {
 
 write.xlsx(links,"../data/01-modified-data/sampleRedditText.xlsx")
 
-``
+```
 
 Here I have gathered a list of 7 stock trading subreddits, which I created by searching for subreddits which mentioned individual stocks and investing, which also had more than ~400k subscribers. Then, I can use the find_thread_urls command to get a list of threads which mention particular keywords. For this initial gathering step, I simply gather posts with they keyword "SPY," a ticker for the S&P 500, from r/stocks, a major investing subreddit.
 
@@ -125,7 +125,7 @@ Updated Method: using r/stocks only, get posts for the 100 most common tickers i
 
 
 3. Stocktwits rankings
-``{python}
+```{python}
 # stocksera
 # https://pypi.org/project/stocksera/
 # use this for news ratings, stocktwits website mentions and ranking
@@ -152,11 +152,11 @@ print(stw)
 
 sbrs = client.wsb_mentions(days=500, ticker="QQQ")
 print(sbrs)
-``
+```
 
 
 Dataset 4: (In Progress) Weekly Investor Sentiment from AAII
-`` {r}
+```{r}
 # AAII weekly survey data https://www.aaii.com/sentimentsurvey/sent_results
 # read in as csv 
 
@@ -165,6 +165,6 @@ Dataset 4: (In Progress) Weekly Investor Sentiment from AAII
 #head(aaWeekly)
 
 
-``
+```
 
 
