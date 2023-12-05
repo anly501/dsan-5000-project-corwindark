@@ -61,6 +61,22 @@ getwd()
 #write.csv(cleanData, "./data/01-modified-data/cleanRTAT.csv")
 ```
 
+```{python}
+
+import pandas as pd
+import numpy as np
+import quandl
+import nasdaqdatalink
+
+
+quandl.ApiConfig.api_key = 'psq4nx69HDimf2kQcxZJ'
+table1 = quandl.get_table('NDAQ/RTAT10', date='2023-09-28,2023-09-27,2023-09-26', ticker='TSLA,TQQQ,SQQQ')
+
+print(table1)
+
+
+```
+
 Here I put my api key into the quandl function and I am able to get data going back to 2016 with no issue.
 
 Dataset 2: Text data from reddit
@@ -115,7 +131,7 @@ for(i in 1:length(uqTickers)) {
 
 
 
-write.xlsx(links,"../data/01-modified-data/sampleRedditText.xlsx")
+#write.xlsx(links,"../data/01-modified-data/sampleRedditText.xlsx")
 
 ```
 
@@ -149,7 +165,6 @@ print(stw)
 
 
 
-
 sbrs = client.wsb_mentions(days=500, ticker="QQQ")
 print(sbrs)
 ```
@@ -160,9 +175,9 @@ Dataset 4: (In Progress) Weekly Investor Sentiment from AAII
 # AAII weekly survey data https://www.aaii.com/sentimentsurvey/sent_results
 # read in as csv 
 
-#getwd()
-#aaWeekly <- read.csv("./data/00-raw-data/sentiment_aaii.csv")
-#head(aaWeekly)
+getwd()
+aaWeekly <- read.csv("./data/00-raw-data/sentiment_aaii.csv")
+head(aaWeekly)
 
 
 ```

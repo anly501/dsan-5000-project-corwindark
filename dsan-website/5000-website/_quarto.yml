@@ -2,36 +2,44 @@ project:
   type: website
 
 website:
-  title: "DSAN-5000: Project"
-  navbar:
-    left:
-      - href: index.qmd
-        text: About Me
-      - href: https://github.com/anly501/dsan-5000-project-corwindark
-        text: Code
-      - href: Introduction/introduction.qmd
-        text: Introduction
-      - href: datagathering/datagathering.qmd
-        text: Data Gathering
-      - href: datacleaning/datacleaning.qmd
-        text: Data Cleaning
-      - href: dataexploration/dataexploration.qmd
-        text: Data Exploration
-      - href: naivebayes/naivebayes.ipynb
-        text: Naive Bayes
-      - href: clustering/clustering.ipynb
-        text: Clustering
-      - href: dimreduction/dimreduction.ipynb
-        text: Dimensionality Reduction
-      - href: dectrees/dectrees.qmd
-        text: Decision Trees
-      - href: arm/arm.ipynb
-        text: ARM
+  title: "Retail Investor Sentiment and Social Media"
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - section: "Project Overview"
+        contents:
+          - href: index.qmd
+            text: About Me
+          - href: https://github.com/anly501/dsan-5000-project-corwindark
+            text: Code
+          - href: Introduction/introduction.qmd
+            text: Introduction
+      - section: "Data Processing"
+        contents:
+        - href: datagathering/datagathering.qmd
+          text: Data Gathering
+        - href: datacleaning/datacleaning.qmd
+          text: Data Cleaning
+        - href: dataexploration/dataexploration.qmd
+          text: Data Exploration
+      - section: "Machine Learning Methods"
+        contents:
+        - href: naivebayes/naivebayes.ipynb
+          text: Naive Bayes
+        - href: clustering/clustering.ipynb
+          text: Clustering
+        - href: dimreduction/dimreduction.ipynb
+          text: Dimensionality Reduction
+        - href: dectrees/dectrees.qmd
+          text: Decision Trees
+        - href: arm/arm.ipynb
+          text: ARM
       - href: conclusions/conclusions.ipynb
         text: Conclusions
 format:
   html:
-    theme: cosmo
+    theme: lux
     toc: true
     code-fold: true
     code-summary: "Show Code"
