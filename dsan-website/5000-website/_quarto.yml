@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "Retail Investor Sentiment and Social Media"
+  title: "Retail Investor Activity and Online Sentiment"
   sidebar:
     style: docked
     search: true
@@ -33,9 +33,7 @@ website:
           text: Dimensionality Reduction
         - href: dectrees/dectrees.qmd
           text: Decision Trees
-        - href: arm/arm.ipynb
-          text: ARM
-      - href: conclusions/conclusions.ipynb
+      - href: conclusions/conclusions.qmd
         text: Conclusions
 format:
   html:

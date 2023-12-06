@@ -1,8 +1,26 @@
 ---
-title: Introduction - Retail Investor Sentiment and Market Outcomes
+title: Introduction - Why Retail Investing Matters
 author: Corwin Dark
 bibliography: ../references.bib 
 ---
+
+
+::::{.columns}
+
+::: {.column width="50%"}
+![](../images/headline.png)
+:::
+
+::: {.column width="50%"}
+![](../images/gme.png)
+:::
+
+::: {style="font-size: 50%;"}
+Left: Anonymous, “I was addicted to Robinhood and contemplated suicide after wiping out my $70,000 savings. Here’s why I blame the investing app.,” Business Insider. Accessed: Nov. 28, 2023. [Online]. Available: https://www.businessinsider.com/addicted-to-robinhood-wallstreetbets-day-trading-lost-everything-2021-2. Right: By Mike Mozart from Funny YouTube, USA - GameStop, CC BY 2.0, https://commons.wikimedia.org/w/index.php?curid=89854717.
+:::
+
+::::
+
 
 ## Introduction
 
@@ -12,22 +30,32 @@ While broader access to financial markets could distribute the gains from invest
 
 Unsurprisingly, researchers have begun to study this phenomena from several angles. Academics have found that including sentiment from retail investor forums helps their models predict prices more accurately [@jing_hybrid_2021], relying on social media data sources that have become increasingly important in financial analysis [@khan_stock_2022]. Khan et. al also found that the impact of social media hype and retail investors varied in importance based on the particular stock market exchange or security being studied. Dividing up the market into smaller segments is certainly a promising area of analysis, based on this work. Overall, data science methods are well suited to address this question, and some areas such as deep learning have become embedded across topics in finance and banking [@huang_deep_2020]. 
 
+## Approach
+
+Rather than study the impact of retail investors on the stock market directly, I focused this project on studying the impact of varied factors on retail investors themselves. In particular, from the outset I knew I wanted to investigate the role of social media and sentiment on retail investors. Social media and online sentiment have been discussed as catalysts for the type of volatile, herd mentality that has allegedly overcome individual investors for particular stocks. 
+
+To address these questions, I will look at common measures of retail investor interest, including forum posts, social media messages and sentiment, and trading patterns for particular financial instruments.
+
+
 ## Research Questions
 
 In this project, I am seeking to investigate the following research questions: 
 
-1. To what extent do common measures of retail investor interest correspond to movement in stock prices?
-2. Is retail investor interest positively or negatively correlated with short and long term outcomes? 
-3. Which social media sites show promise for measuring retail investor interest?
-4. Does the impact of retail investor interest vary based on the financial exchange in question?
-5. Does the impact of retail investor interest vary based on the particular security in question?
-6. Has the importance of retail investor interest diminished since 2020?
-7. To what extent is it possible to predict how long retail investor interest will last in a particular stock?
-8. Which types of stocks are most likely to attract retail investor interest?
-9. Do media datasets include signs that news coverage spawns retail investor interest? 
-10. Do media datasets include signs that retail investor interest spawns news coverage?
 
-To address these questions, I will look at common measures of retail investor interest, including forum posts, social media messages and sentiment, and trading patterns for 
-particular financial instruments.
+1. My central question: To what extent do individual investors’ sentiments and conversations around stock tickers affect changes in trading activity in the post COVID era?
+2. Has the impact of online retail investor sentiment changed over time?
+3. Which social media sites show the most promise for measuring retail investor interest?
+4. Which types of stocks are most likely to attract retail investor interest?
+5. To what extent is it possible to predict how long retail investor interest will last in a particular stock?
+6. Is positive or negative sentiment more consequential in impacting retail investor activity?
+7. What characteristics of social media posts determine if they will have an impact on retail activity?
+8. Do surveys of individual investors' sentiment accurately reflect the sentiment of all retail investors?
+9. Has the total amount of retail investor activity increased or decreased overtime?
+10. Does the language used in social media posts matter for their affect on retail trader activity?
+
 
 ## Hypotheses
+
+In selecting this project, I held a few theories about how the data would be connected. Firstly, I did believe in the theory that individual investors were guided by a herd-style mentality, to the extent that it might mean particular stocks saw increased interest based on social media activity. However, I did not expect this to be the sole, or even major, determinant of individual investor behavior. Based on those beliefs, I hypothesized a noticeable, but slight, effect of social media activity on the involvement of retail investors on a given stock.
+
+In terms of the content of online discussions, not just their size or frequency, I felt that bullish or positive sentiment was more likely to be linked to increased activity in a stock than negative sentiment. Further I did not believe that the connection between sentiment (as measured in surveys) and trading activity changes would be strong enough to detect with the methods used for this project. Finally, I also felt doubtful of whether it would be possible to accurately predict increases or decreases in activity through online discussions and sentiment, as I had been led to believe that financial data was overwhelmingly random and difficult to predict. Nonetheless, I began the project hopeful of finding meaningful answers to the questions above.

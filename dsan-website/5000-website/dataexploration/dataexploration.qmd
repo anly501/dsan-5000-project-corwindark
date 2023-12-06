@@ -3,14 +3,16 @@ title: "Exploratory Data Analysis"
 author: "Corwin Dark"
 engine: knitr
 ---
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
 
 
-<h2> EDA Overview <h2>
+## EDA Overview
 
 At the broadest level, there is a temporal component to the research question that will shape how we conduct the analysis. Namely, the outcome variable is retail trading activity in stocks, as measured by daily holding data on the top 10 stocks sourced from NASDAQ's API. As such, we are interested in data from the other datasets (reddit text information, investor sentiment survey, stocktwits ranking) as of one day before. I will merge the datasets in R, and then use R (ggplot) to create visuals and carry out EDA.
 
-<h2> Joining the Data </h2>
-(Will be moved to data cleaning eventually)
+## Exploring the Data
 
 
 ```{r}
@@ -24,6 +26,7 @@ library(xlsx)
 
 Let's join the data together into one dataset, with properly lagged predictor variables.
 ```{r}
+
 redditIn <- read.xlsx("../data/01-modified-data/sampleRedditText.xlsx", sheetName = "Sheet1")
 sentimentIn <- read.csv("../data/00-raw-data/sentiment_aaii.csv")
 rtatIn <- read.csv("../data/01-modified-data/cleanRTAT.csv")
@@ -48,50 +51,59 @@ rtatIn <- rtatIn %>%
     mutate(week = week(date)) %>%
     mutate(weekyear = paste(year(date), week))
 
-head(rtatIn)
+#head(rtatIn)
 
 
 joinedSentiment <- left_join(rtatIn, sentimentIn, by = "weekyear")
 
-head(joinedSentiment)
+#head(joinedSentiment)
 
 ``` 
 
 
-<h2> Numeric Summaries </h2>
+### Numeric Summaries 
 
 ``` {r}
+print("Activity Summary:")
 summary(joinedSentiment$activity)
+print("Sentiment Summary:")
 summary(joinedSentiment$sentiment)
+print("Change in Activity Summary:")
 summary(joinedSentiment$deltaActivity)
+print("Change in Sentiment Summary:")
 summary(joinedSentiment$deltaSentiment)
+print("Positive Sentiment Proportion Summary:")
 summary(joinedSentiment$Bullish)
+print("Negative Sentiment Proportion Summary:")
 summary(joinedSentiment$Bearish)
+print("Neutral Sentiment Proportion Summary:")
 summary(joinedSentiment$Neutral)
+print("Spread in Sentiment Summary:")
 summary(joinedSentiment$Spread)
 
 ```
 
 
 
-Barplots for discrete variables:
+### Barplots for discrete variables:
 ```{r}
 
-ggplot(joinedSentiment, aes(x = newEntry)) + geom_bar() + labs(x= "Current Stock is in Top 10", y = "Count", title = "Distribution of New Stocks Amongst Top-10 Stocks by Retail Activity") + theme_grey(base_size = 20)
+ggplot(joinedSentiment, aes(x = newEntry)) + geom_bar() + labs(x= "Current Stock is in Top 10", y = "Count", title = "Distribution of New Stocks\n Amongst Top-10 by Retail Activity") + theme_grey(base_size = 20)
 
+print("Most Popular Stocks by Days in Top 10:")
 sort(table(joinedSentiment$ticker), decreasing = TRUE)[1:10]
 ```
 
 In addition to the porportion of new stocks in the top 10, the table shows up the top 10 stocks by number of days spent in the top-10 ranking of retail investor actvity. We can see that the distribution has a heavy right tail, as even amongst the top 10 stocks there is a large divergence, with the top stock (AAPL) having more than two times as many days in the top 10 as the 10th place stock (MSFT).
 
 
-<h2> Outcome Variable Exploration </h2>
+### Outcome Variable Exploration
 
 First, lets explore the outcome variable table, of the top 10 retail-investor held stocks each day. Each stock has an 'activity' number which measures the percent of traded shares held by retail investors. Let's see how those scores are distributed:
 
 ```{r}
 
-ggplot(joinedSentiment, aes(x = activity)) + geom_bar(stat = 'bin', binwidth = 0.01) + labs(x= "Daily Retail Activity Score", y = "Count", title = "Distribution of Daily Retail Activity Scores Amongst Top-10 Stocks") + theme_grey(base_size = 20)
+ggplot(joinedSentiment, aes(x = activity)) + geom_bar(stat = 'bin', binwidth = 0.01) + labs(x= "Daily Retail Activity Score", y = "Count", title = "Distribution of Daily \n Retail Activity Scores Amongst Top-10 Stocks") + theme_grey(base_size = 20)
 
 ```
 
@@ -133,7 +145,7 @@ ggplot(joinedSentimentAvgs, aes(x = as.character(year(date.x)), y = dailynewtick
 
 Here we can see there is not a huge difference in the distributions of new stocks between the years, except for 2021, when there was a lot more days with at least 1 new stock in the top 10. But far and away, at least 50% of days have no new stocks in the top 10 of retail trader activity.
 
-<h2> Bivariate Analysis </h2>
+### Bivariate Analysis 
 
 
 Now, lets look at some of the predictor variables in relation to the outcome variables.
@@ -155,7 +167,7 @@ The correlations between weekly investor sentiment polling and investor activity
 This correlation makes sense, because both measures are capturing the same underlying phenomena: investor sentiment. If retail investor sentiment is bearish about the market in general, then it would likely also be negative about particular stocks.
 
 
-<h2> Outliers and Segmentation </h2>
+### Outliers and Segmentation 
 
 
 We already saw in the overtime chart that perhaps 2021 was a different type of year than the other 3, as it had a high percentage of days with new stocks in the top 10.
@@ -174,14 +186,15 @@ abline(h = cutoff, col = "Red")
 
 With the red line above denoting the 1.5*IQR + mean threshold, we can see that many values lie above this line, but they do not appear to be separated from the main distribution. Rather, it looks like the main distribution has a fat right tail. Perhaps it would be well approximated by a Student's distribution.
 
+### Text Data
 
-Make wordcloud:
+Let's use the TM package to make a cloud of the most popular words in the Reddit posts:
 ```{r}
-install.packages("tm")
+#install.packages("tm")
 library(tm)
 library(wordcloud)
 #Create a vector containing only the text
-text <- read.xlsx("./data/01-modified-data/sampleRedditText.xlsx", sheetName = "Sheet1")
+text <- read.xlsx("../data/01-modified-data/sampleRedditText.xlsx", sheetName = "Sheet1")
 text <- text$text
 
 # Create a corpus  
@@ -203,8 +216,12 @@ set.seed(1234) # for reproducibility
 wordcloud(words = df$word, freq = df$freq, min.freq = 1,           max.words=200, random.order=FALSE, rot.per=0.35,            colors=brewer.pal(8, "Dark2"))
 ```
 
-<h2> Hypothesis Testing </h2>
+The wordcloud is interesting: it contains far more formal language than I would have predicted. Stock trading forums online usually discuss a variety of issues with a varying degree of informalism. I believe the narrow and professional vocabulary in the posts may be due to the particular forum I chose, as the r/stocks subreddit is hyperfocused on discussions of particular stocks. I would hypothesize that the vocabulary and most used words would differ greatly between internet forums, even amongst those that are focused only on investing. 
 
+A few notable points from the words displayed: earnings are by far the most common point of discussion, and seem to play an outsize role in why individual investors on the forum are interested in a particular stock. This could indicate than comparing retail investor conversations with earnings events could be a fruitful point of investigation in the future.
 
+## Findings from EDA
+
+Overall, we can see that activity scores are somewhat similar to a normal distribution which is censored at 0 and centered around 0.02. Albeit with a taller mean and wider right tail than expected from a normal distribution. Activity scores have steadily risen over time, although 2021 was a particularly substantial year for increases in retail trading activity. We also didn't see much obvious correlation between our tabular data and outcome variables, leaving it up to question whether we will be able to predict increases and decreases in retail activity with later models. Finally, the textual data does appear to be of good quality, and we notice substantive vocabulary centering on investments. 
 
 

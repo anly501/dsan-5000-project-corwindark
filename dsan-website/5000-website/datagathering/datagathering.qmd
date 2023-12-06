@@ -3,6 +3,8 @@ title: "Data Gathering"
 engine: knitr
 execute:
     freeze: true
+    eval: false
+bibliography: ../references.bib 
 ---
 
 ## Introduction
@@ -32,7 +34,10 @@ Reviewing the methods nessecary for gathering the datasets mentioned above:
 
 ### Dataset 1: Nasdaq Retail Investor Activity
 
-R version of the NASDAQ api.
+- [View raw data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/00-raw-data/sentiment_aaii.csv)
+- [View clean data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/joinedSentiment.csv)
+
+The Nasdaq API had a lengthy signup process, and required I generate an API key. After receiving my key, I was able to use packages in either R or Python that made use of the Quandly api to query Nasdaq's data. I did this in both Python and R, for good measure, and got the same result. The R version is below.
 ```{r}
 library(tidyverse)
 library(Quandl)
@@ -40,46 +45,45 @@ library(lubridate)
 library(RedditExtractoR)
 library(reticulate)
 library(xlsx)
-
-
-Quandl.api_key("psq4nx69HDimf2kQcxZJ")
-data <- Quandl.datatable("NDAQ/RTAT10", paginate = TRUE)
+# Here I loaded in my API key and queried the data (API Key hidden in this version of the document)
+Quandl.api_key("NNNNNNNNNNNN")
+#data <- Quandl.datatable("NDAQ/RTAT10", paginate = TRUE)
 
 ```
 
-Python version of the NASDAQ api.
-```{python}
+The Python version of the NASDAQ api ultimately yielded the data I used in my project. The code below has been commented out because it was initially run in a separate, Python notebook. But you can review the simplicity of requesting the retail activity data below, which only took a few lines. I put my api key into the quandl function and I am able to get data going back to 2016 with no issue.
 
-import pandas as pd
-import numpy as np
-import quandl
-import nasdaqdatalink
+> Python Code
 
+> import pandas as pd
 
-quandl.ApiConfig.api_key = 'psq4nx69HDimf2kQcxZJ'
-table1 = quandl.get_table('NDAQ/RTAT10', date='2023-09-28,2023-09-27,2023-09-26', ticker='TSLA,TQQQ,SQQQ')
+> import numpy as np
 
-print(table1)
-```
+> import quandl
 
-Here I put my api key into the quandl function and I am able to get data going back to 2016 with no issue.
+> import nasdaqdatalink
+
+> quandl.ApiConfig.api_key = 'NNNNNNNNNNNNNNN'
+
+> table1 = quandl.get_table('NDAQ/RTAT10', date='2023-09-28,2023-09-27,2023-09-26', ticker='TSLA,TQQQ,SQQQ')
+
+> End Python Code
+
 
 
 
 ### Dataset 2: Text Data from Reddit
 
+- [View raw data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/00-raw-data/sentiment_aaii.csv)
+- [View clean data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/joinedSentiment.csv)
+
+
+Initially, I planned to get a particular stock's mentions in titles in each of the 7 major subreddits dedicated to investing. I had originally created this set of forums based on measuring their overlap with known investment subreddits through user overlap [See tool here](ttps://subredditstats.com/subreddit-user-overlaps/superstonk). However, due to API changes I was not able to loop through all posts from these subreddits, and instead was limited to taking popular posts from a single forum. For this purpose, I chose the page "stocks" as it is dedicated solely to the discussion of particular stocks and not other topics. I used an R package to query Reddit's API (in the small amounts that were allowed), until I had a reasonable amount of data to proceed in the project, although far less than I had hoped.
+
 ```{r}
-
-# get a particular stock's mentions in titles in each of the 7 subreddits
-# found subreddits by measuring overlap from https://subredditstats.com/subreddit-user-overlaps/superstonk
-# which is calculated based on how likely users are to post on one or the other subs
-# targeting investment related subs with >400k users
-# loop through subreddits and get titles from past month
-# Limited to just one of the subreddits, so I chose Wallstreet bets, the most famous
-
 #install.packages("RedditExtractoR", repos='https://cloud.r-project.org/')
 
-
+# The original list of 7 subreddits I planned to use
 stockSubreddits <- c(
     "wallstreetbets",
     "stocks",
@@ -90,24 +94,24 @@ stockSubreddits <- c(
     "wallstreetbetsnew"
 )
 
-
-
+# The function which initially flags the URLS of posts that contain a given string in the title
 links <- find_thread_urls(keywords = "QQQ", subreddit = "stocks", sort_by = "top", period = "all")
 
+# Testing formatting with a single example
 links <- tibble(links)
-
 links$ticker = "QQQ"
 
-# get all unique stocks in the dataset of top retail-traded securities
+# Getting all unique stocks in the dataset of top retail-traded securities
 tempClean <- read.csv('../data/01-modified-data/cleanRTAT.csv')
 
-
+# looking for the top 100 most popular stocks by retail activity, to find their relevant reddit posts (limited from doing all stocks by API bandwidth)
 topStocks <- sort(table(tempClean$ticker), decreasing = TRUE)[1:100]
 
 uqTickers <- rownames(topStocks)
 
 print(uqTickers)
 
+# Looping through the common top-10 stocks and pulling any top threads which referenced them in the title
 for(i in 1:length(uqTickers)) {
     print(i / nrow(uqTickers))
     
@@ -116,19 +120,17 @@ for(i in 1:length(uqTickers)) {
     links <- rbind(links, templinks)
 }
 
-
-
 #write.xlsx(links,"../data/01-modified-data/sampleRedditText.xlsx")
-
 ```
-
-Here I have gathered a list of 7 stock trading subreddits, which I created by searching for subreddits which mentioned individual stocks and investing, which also had more than ~400k subscribers. Then, I can use the find_thread_urls command to get a list of threads which mention particular keywords. For this initial gathering step, I simply gather posts with they keyword "SPY," a ticker for the S&P 500, from r/stocks, a major investing subreddit.
-
-Updated Method: using r/stocks only, get posts for the 100 most common tickers in the most-held datatable.
 
 
 ### Dataset 3: AAII Investor Sentiment
 
+- [View raw data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/00-raw-data/sentiment_aaii.csv)
+- [View clean data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/joinedSentiment.csv)
+
+
+Finally, the dataset for individual investors' weekly sentiment was readily available as a CSV on the AAII's website. I downloaded this and read it into the file.
 ```{r}
 # AAII weekly survey data https://www.aaii.com/sentimentsurvey/sent_results
 # read in as csv 

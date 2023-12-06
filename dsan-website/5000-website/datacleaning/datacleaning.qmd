@@ -3,16 +3,37 @@ title: "Data Cleaning"
 engine: knitr
 execute:
     freeze: true
+    eval: false
 project:
   execute-dir: project
 ---
 
+## Structuring Data to Investigate Retail Activity
 
-### Retail Activity
+The most important structuring element when cleaning the datasets and tying them together is the timing of the data. The outcome variable, retail activity, is collected daily, but only on days where the stock market is open. The first input dataset, the investor sentiment survey, is collected at the end of every week about the following week. And the Reddit posts are scraped from the website with a date, but it is unknown when in the day the post was made. Ideally, if we were trying to predict retail activity on a particular day, such as a Tuesday, we would look at the survey data from the previous friday, but the activity and Reddit data from the proceeding Monday. If the Monday were a federal holiday when the market was closed, then we would look at the Reddit and activity data from the previous Friday. In cleaning the data, I chose to address this challenge at the inital stage, by moving the outcome data back a day so that all future references to the activity increase/decrease variable can be made without needing to adjust for a delay.
+
+
+## Retail Activity
 
 Clean Record Data in R
-- (View Raw Data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/00-raw-data/ndaqRT.csv]
-- (View Clean Data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/joinedSentiment.csv]
+
+- [View Raw Data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/00-raw-data/ndaqRT.csv)
+- [View Clean Data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/joinedSentiment.csv)
+
+
+Cleaning the retail activity record data meant:
+
+1. Reading in the data nad ordering by date (10 observations per day)
+
+2. Cleaning up various columns to ensure they were stored in the correct data format
+
+3. Dividing the data up by ticker, so that each stock can be compared against itself
+
+4. Looking at the next-most-recent day for each ticker, and subtracting that from today's total to get the difference
+
+5. Repeating the operation to get the change in sentiment
+
+6. Flag the ticker as new to the top 10 if no immediately proceeding date was found
 
 
 ```{r}
@@ -20,26 +41,34 @@ library(tidyverse)
 library(lubridate)
 library(reticulate)
 
+data <- read.csv('../data/00-raw-data/ndaqRT.csv')
 
+# filter to the desired year
 cleanData <- data %>% 
     mutate(date = ymd(date)) %>%
     filter(year(date) > 2019)
 
+# adjust data types as needed
 cleanData <- cleanData[order(cleanData$date),]
 cleanData$deltaActivity <- vector(mode = "numeric", length = nrow(cleanData))
 cleanData$deltaSentiment <- vector(mode = "numeric", length = nrow(cleanData))
 cleanData$newEntry <- vector(mode = 'logical', length = nrow(cleanData))
 
+
+# Looping through all entries in the dataset, generate the daily change in activity and lag the result by one day.
 for(i in 1:nrow(cleanData)) {
     if(i %% 1000 == 0) {
         print(i)
     }
+
+    # Make sure that we are comparing each stock against itself day over day
     prevDay <- cleanData %>%
         filter(day(date) == day(cleanData$date[i]) - 1) %>%
         filter(ticker == cleanData$ticker[i])
 
     if(nrow(prevDay) > 0) {
 
+        # calculate the day over day change and whether the stock is new to the top 10
         cleanData$deltaActivity[i] = cleanData$activity[i] - prevDay$activity[1]
         cleanData$deltaSentiment[i] = cleanData$sentiment[i] - prevDay$sentiment[1]
         cleanData$newEntry[i] = FALSE
@@ -57,33 +86,74 @@ head(cleanData, 100)
 ```
 
 
-### Investor Sentiment
-- (View raw data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/00-raw-data/sentiment_aaii.csv]
-- (View clean data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/joinedSentiment.csv]
+
+## Investor Sentiment
+
+- [View raw data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/00-raw-data/sentiment_aaii.csv)
+- [View clean data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/joinedSentiment.csv)
+
+Gathering the investor sentiment data was easy, the challenging part was merging it with the daily retail trading activity, as the investor sentiment data was weekly. To properly join the data, I needed to have the investor sentiment survey apply to the previous week's observations. I did this by:
+
+1. Reading in the data and ensuring the date of the survey was stored in proper format.
+
+2. Calculating the week of the year that each survey was taken on.
+
+3. Adding one to the week, resetting past 53, and joining it with the year to form a unique week-year identifier.
+
+4. Joining this identifier with the week-year of the activity data as needed.
 
 ```{r}
-# Copy code to clean investor sentiment data from other tabs
+#redditIn <- read.xlsx("../data/01-modified-data/sampleRedditText.xlsx", sheetName = "Sheet1")
+sentimentIn <- read.csv("../data/00-raw-data/sentiment_aaii.csv")
+rtatIn <- read.csv("../data/01-modified-data/cleanRTAT.csv")
+
+
+# Ensure dates can be joined
+colnames(sentimentIn)[1] <- "date"
+
+sentimentIn <- sentimentIn |>
+    mutate(date = mdy(date)) |>
+    mutate(week = week(date)) |>
+    mutate(lagweek = week + 1) |>
+    mutate(weekyear = paste(year(date), lagweek )) |>
+    mutate(Bullish = as.numeric(str_replace(Bullish, "%", ""))/100 ) |>
+    mutate(Neutral = as.numeric(str_replace(Neutral, "%", ""))/100 ) |>
+    mutate(Spread = as.numeric(str_replace(Spread, "%", ""))/100 ) |>
+    mutate(Bearish = as.numeric(str_replace(Bearish, "%", ""))/100 ) 
+
+
+rtatIn <- rtatIn %>%
+    mutate(date = ymd(date)) %>%
+    mutate(week = week(date)) %>%
+    mutate(weekyear = paste(year(date), week))
+
+#head(rtatIn)
+
+
+#joinedSentiment <- left_join(rtatIn, sentimentIn, by = "weekyear")
+
 ```
 
-<h2> Cleaning Reddit Text Corpus in Python </h2>
-
-- (View Original Data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/topRedditText.xlsx]
-- (View Cleaned Data)[https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/vectorizedReddit.csv]
- Clean Text Data in Python
 
 
-Most of my work on preparing the text data is on the Naive Bayes tab. Below I take the reddit data and 
+## Reddit Text Corpus in Python
+
+- [View Original Data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/topRedditText.xlsx)
+- [View Cleaned Data](https://github.com/anly501/dsan-5000-project-corwindark/blob/d8c22f7f12f2d5edd0c771870a249f1493aa15a1/dsan-website/5000-website/data/01-modified-data/vectorizedReddit.csv)
 
 
-```{python}
-import os
 
-print
-os.getcwd()
-```
+Reddit forums dedicated to the stock market have millions of users, and organized impact on markets
+The Reddit API promises to allow text scraping. However, it only allowed access to a small subset of posts, and timed out after a few hundred requests. Chaining many request together, and targeting the most active posts, I gathered 7,463 Reddit posts from the studied time period on r/stocks. Once vectorized, these posts contained around 56,000 unique words, reduced by about 7,000 through stemming. Then, I filtered out words/columns which had only appeared once in the dataset, and this ultimately reduced the size of the text data down to around 35,000 columns.
 
 
-I ran the following code to clean my data: 
+Cleaning the data meant:
+
+1. Starting from raw text data, which was largely contained in the title of the Reddit posts
+
+2. Split the text column into individual words and apply a stemmer
+
+3. Vectorize the resulting column 
 
 ```{python}
 from sklearn.feature_extraction.text import CountVectorizer
@@ -99,7 +169,7 @@ from nltk.stem import PorterStemmer
 
 os.getcwd()
 
-redditTexts = pd.read_excel("./data/01-modified-data/sampleRedditText.xlsx", sheet_name="Sheet1")
+redditTexts = pd.read_excel("../data/01-modified-data/sampleRedditText.xlsx", sheet_name="Sheet1")
 
 redditTexts.head()
 #positiveLingo <- c("call", "calls", "long", "hold", "buy", "bull", "bullish", "bulls", "support", "strong")
@@ -107,55 +177,39 @@ redditTexts.head()
 
 removeNAtexts = redditTexts.dropna(subset = ['text'])
 
+# initailize stemmer
 stemmer = PorterStemmer()
 
+# split strings into individual words
 removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: x.split())
 
-#df['stemmed'] = df['unstemmed'].apply(lambda x: [stemmer.stem(y) for y in x]) 
-
+# stem the words
 removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: [stemmer.stem(y) for y in x]) 
-
+# join the words back together
 removeNAtexts["text"] = removeNAtexts["text"].apply(lambda x: ' '.join(x)) 
 
+
+# use count vectorizer to combine the data
 vectorizer = CountVectorizer()
 Xs  =  vectorizer.fit_transform(removeNAtexts["text"])   
-#print(type(Xs))
 
 col_names=vectorizer.get_feature_names_out()
 
+# take only the needed columns
 smallReddit = removeNAtexts[["date_utc", "title", "ticker", "comments"]]
 
-smallReddit.index
+#smallReddit.index
 
 b = pd.DataFrame(Xs.toarray(), columns=col_names, index= smallReddit.index)
 
 redditCV = pd.concat([smallReddit, b], axis=1)
 
-redditCV.head()
+#redditCV.head()
 
 
-redditCV.to_csv('./data/01-modified-data/vectorizedReddit.csv', index=False)
+#redditCV.to_csv('./data/01-modified-data/vectorizedReddit.csv', index=False)
 #print(df)
 ```
 
-
-```{python}
-
-# VOCABULARY DICTIONARY
-#print("vocabulary = ",vectorizer.vocabulary_)   
-# STOP WORDS 
-#print("stop words =", vectorizer.stop_words)
-#print("col_names=",col_names)
-#print("CORPUS WIDE WORD COUNTS:",np.sum(Xs,axis=0))
-#print("WORDS PER DOCUMENT:\n",np.sum(Xs,axis=1))
-
-
-
-```
-
-~51700 words without stemming
-~49692 words after stemming
-
-<h2> Now, let's
 
 
